@@ -1,4 +1,4 @@
--i {input.*} -o {output.*} -c {int}
+-i {input.extension} -o {output.extension} -c {int}
 
 
 
