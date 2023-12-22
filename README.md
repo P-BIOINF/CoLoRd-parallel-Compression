@@ -1,3 +1,7 @@
--i {input.*} -o {output.*} -c {int}\n
+-i {input.*} -o {output.*} -c {int}
+
+
+
+
 c -- count
 outputs logs in the same directory as -o.
