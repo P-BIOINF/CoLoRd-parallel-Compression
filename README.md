@@ -1,4 +1,4 @@
--i {input.extension} -o {output.extension} -c {int}
+-i {input directory} -o {output directory} -c {int}
 
 
 
