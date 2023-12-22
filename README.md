@@ -4,4 +4,8 @@
 
 
 c -- count
+
+
+
+
 outputs logs in the same directory as -o.
