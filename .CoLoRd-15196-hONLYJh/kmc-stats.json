@@ -1,0 +1,15 @@
+{
+	"1st_stage": "0.55777s",
+	"2nd_stage": "1.73712s",
+	"Total": "2.29489s",
+	"Tmp_size": "0MB",
+	"Stats": {
+		"#k-mers_below_min_threshold": 21478,
+		"#k-mers_above_max_threshold": 0,
+		"#Unique_k-mers": 21525,
+		"#Unique_counted_k-mers": 47,
+		"#Total no. of k-mers": 22153,
+		"#Total_reads": 25,
+		"#Total_super-k-mers": 16120
+	}
+}

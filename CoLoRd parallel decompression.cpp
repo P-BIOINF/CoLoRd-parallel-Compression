@@ -97,11 +97,10 @@ int main(const int argc, char** argv)
 	colord.arguments.append(" ");
 
 	std::ifstream inputStream{ input };
-	std::ofstream outputStream{ };
+	std::ofstream outputStream{};
 	std::ofstream logStream{ output.substr(0,output.find_last_of('\\') == std::string::npos ? 0 : output.find_last_of('\\')+1).append("logs.txt")};
 
-
-	if(!inputStream || !outputStream || colord.mode.empty() || colord.path.empty())
+	if(!inputStream || colord.mode.empty() || colord.path.empty())
 	{
 		std::cerr << "There was a problem!\n"
 			    "Try using:\n"
@@ -144,66 +143,82 @@ int main(const int argc, char** argv)
 				outputStream.close();
 				auto tempString{ output};
 				outputStream.open(tempString.insert(output.length(), std::to_string(++index)).append(".fastq"));
+				if(!outputStream)
+				{
+					std::cerr << "There was a problem!\n"
+						"Try using:\n"
+						"-o <output directory> -i <input directory> -a <colord directory> -m {colord mode}\n";
+					return -1;
+				}
 				directories.emplace_back(std::filesystem::current_path().append(tempString).string());
 			}
 			++current;
 		}
 		outputStream << line << '\n';
 	}
-	for (const auto& path : directories)
-		std::cout << path << '\n';
+	outputStream.flush();
+	//czemu bez tego nie dziala?
 
-	std::vector<std::size_t> sizesWithoutCompression(index);
-	std::vector<std::size_t> sizesWithCompression(index);
+	std::vector<std::size_t> sizesWithoutCompression{};
+	std::vector<std::size_t> sizesWithCompression{};
 
 	for(const auto& path: directories)
 	{
 		sizesWithoutCompression.emplace_back(file_size(std::filesystem::path(path)));
-		std::string tempOutput{ " " + path.substr(0, path.find_last_of('.')).append("c.fastq") };
-		std::string temp{colord.path};
-		temp.append(colord.mode).append(colord.arguments).append(path).append(tempOutput);
+		std::string tempOutput{path.substr(0, path.find_last_of('.')).append("c.fastq") };
+		std::string temp{" " + colord.path};
+		temp.append(colord.mode).append(colord.arguments).append(path).append(" " + tempOutput);
 
 		std::system(temp.data());
 		sizesWithCompression.emplace_back(file_size(std::filesystem::path(tempOutput)));
+		std::cout << std::endl;
 	}
 
 	const std::size_t originalSizeWithoutCompression{ std::filesystem::file_size(input )};
 	//const std::size_t originalSizeWithoutCompression{ std::filesystem::file_size(std::filesystem::current_path().append(input).string()) };
-	std::string tempOutput{ " " + input.substr(0, input.find_last_of('.')).append("c.fastq") };
-	std::string temp{ colord.path };
-	temp.append(colord.mode).append(colord.arguments).append(input).append(tempOutput);
+	std::string tempOutput{input.substr(0, input.find_last_of('.')).append("c.fastq") };
+	std::string temp{ " " + colord.path };
+	temp.append(colord.mode).append(colord.arguments).append(input).append(" " + tempOutput);
 	std::system(temp.data());
 	std::size_t originalSizeWithCompression{ file_size(std::filesystem::path(tempOutput)) };
 
 
-	std::stringstream sstream{};
-	sstream << std::setprecision(3) << "Size of the original file W/O compression: " << originalSizeWithoutCompression / static_cast<long double>(1024)
-	<< "kbs\tW/ compression: " << originalSizeWithCompression / static_cast<long double>(1024) << "kbs\tCompression ratio: " << originalSizeWithoutCompression / originalSizeWithCompression << '\n' << "kbs\n\n\n";
-
-	std::cout << sstream.str();
-	logStream << sstream.str();
-	sstream.ignore(std::numeric_limits<std::streamsize>::max());
-	sstream.ignore(std::numeric_limits<std::streamsize>::max());
-	sstream.ignore(std::numeric_limits<std::streamsize>::max());
-	std::size_t avgRatio{};
-
+	long double avgRatio{};
+	std::cout << '\n';
 	for(std::size_t i{0}; i < index; ++i)
 	{
-		auto ratio{ sizesWithoutCompression[i] / sizesWithCompression[i] };
+		auto ratio{ sizesWithoutCompression[i] / static_cast<long double> (sizesWithCompression[i]) };
 		avgRatio += ratio;	
-
-		std::stringstream tempSstream{};
-		tempSstream << std::setprecision(3) << "Size of file #" << i << "\nW/O compression: " << sizesWithoutCompression[i] / static_cast<long double>(1024)
-			<< "kbs\tW/ compression: " << sizesWithCompression[i] / static_cast<long double>(1024) << "kbs\tCompression ratio: " << ratio << '\n';
-
-		logStream << tempSstream.str();
-		std::cout << tempSstream.str();
+		std::stringstream tempStream{};
+		tempStream << std::setprecision(3) << std::fixed << "Size of file #" << i + 1 << ":\nw/o compression: " << sizesWithoutCompression[i] / static_cast<long double>(1024)
+			<< "kbs\tw/ compression: " << sizesWithCompression[i] / static_cast<long double>(1024) << "kbs\tcompression ratio: " << ratio << '\n';
+		logStream << tempStream.view();
+		std::cout << tempStream.view();
 	}
 	avgRatio /= index;
 
-	sstream << "\n\nAverage compression ratio: " << avgRatio << '\n';
-	logStream << sstream.str();
-	std::cout << sstream.str();
+	{
+		std::stringstream sstream{};
+		sstream << "\nAverage compression ratio: " << avgRatio << '\n';
+		logStream << sstream.view();
+		std::cout << sstream.view();
+	}
+
+	auto ratio{ originalSizeWithoutCompression / static_cast<long double>(originalSizeWithCompression) };
+	{
+		std::stringstream sstream{};
+		sstream << std::setprecision(3) << std::fixed << "Size of the original file w/o compression: " << originalSizeWithoutCompression / static_cast<long double>(1024)
+			<< "kbs\tw/ compression: " << originalSizeWithCompression / static_cast<long double>(1024) << "kbs\tcompression ratio: " << ratio << "\n\n";
+		std::cout << sstream.view();
+		logStream << sstream.view();
+	}
+
+	{
+		std::stringstream sstream{};
+		sstream << std::setprecision(3) << std::fixed << "Delta: " << ((ratio / avgRatio) * 100) - 100 << "%\n";
+		std::cout << sstream.view();
+		logStream << sstream.view();
+	}
 
 	return 0;
 }

@@ -1,0 +1,13 @@
+Size of file #1:
+w/o compression: 558.932kbs	w/ compression: 141.238kbs	compression ratio: 3.957
+Size of file #2:
+w/o compression: 527.109kbs	w/ compression: 148.457kbs	compression ratio: 3.551
+Size of file #3:
+w/o compression: 601.701kbs	w/ compression: 203.879kbs	compression ratio: 2.951
+Size of file #4:
+w/o compression: 554.893kbs	w/ compression: 179.790kbs	compression ratio: 3.086
+
+Average compression ratio: 3.38639
+Size of the original file w/o compression: 2242.635kbs	w/ compression: 654.180kbs	compression ratio: 3.428
+
+Delta: 1.234%
