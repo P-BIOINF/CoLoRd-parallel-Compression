@@ -176,7 +176,7 @@ int main(const int argc, char** argv)
 
 	const std::size_t originalSizeWithoutCompression{ std::filesystem::file_size(input )};
 	//const std::size_t originalSizeWithoutCompression{ std::filesystem::file_size(std::filesystem::current_path().append(input).string()) };
-	std::string tempOutput{input.substr(0, input.find_last_of('.')).append("c.fastq") };
+	std::string tempOutput{input.substr(0, input.find_last_of('.')).append("c.fastqcomp") };
 	std::string temp{ " " + colord.path };
 	temp.append(colord.mode).append(colord.arguments).append(input).append(" " + tempOutput);
 	std::system(temp.data());
