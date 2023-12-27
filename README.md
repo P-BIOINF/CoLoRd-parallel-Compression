@@ -1,1 +1,1 @@
--o <output directory> -i <input directory> -c <amount of files to divide between> -a <colord directory> -m <compress mode> -q <quality mode> ...other arguments that work with colord
+-o \<output directory\> -i \<input directory\> -c \<amount of files to divide between\> -a \<colord directory\> -m \<compress mode\> -q \<quality mode\> ...other arguments that work with colord
