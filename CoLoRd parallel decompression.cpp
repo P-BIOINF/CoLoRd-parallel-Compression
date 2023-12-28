@@ -138,7 +138,7 @@ int main(const int argc, char** argv)
 	{
 		if (line[0] == '@' && line.find("length") != std::string::npos)
 		{
-			if (current+ % repEvery == 0)
+			if (current % repEvery == 0)
 			{
 				outputStream.close();
 				auto tempString{ output};
@@ -187,7 +187,7 @@ int main(const int argc, char** argv)
 	std::cout << '\n';
 	for(std::size_t i{0}; i < index; ++i)
 	{
-		auto ratio{ sizesWithoutCompression[i] / static_cast<long double> (sizesWithCompression[i]) };
+		const auto ratio{ sizesWithoutCompression[i] / static_cast<long double> (sizesWithCompression[i]) };
 		avgRatio += ratio;	
 		std::stringstream tempStream{};
 		tempStream << std::setprecision(3) << std::fixed << "Size of file #" << i + 1 << ":\nw/o compression: " << sizesWithoutCompression[i] / static_cast<long double>(1024)
@@ -215,7 +215,7 @@ int main(const int argc, char** argv)
 
 	{
 		std::stringstream sstream{};
-		sstream << std::setprecision(3) << std::fixed << "Delta: " << ((ratio / avgRatio) * 100) - 100 << "%\n";
+		sstream << std::setprecision(3) << std::fixed << "Delta: " << avgRatio-ratio << "\n";
 		std::cout << sstream.view();
 		logStream << sstream.view();
 	}
