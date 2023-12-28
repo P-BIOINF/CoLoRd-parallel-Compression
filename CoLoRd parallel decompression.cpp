@@ -120,7 +120,7 @@ int main(const int argc, char** argv)
 	std::string line{};
 	while (std::getline(inputStream,line))
 	{
-		if(line[0] == '@' && line.find("length") != std::string::npos)
+		if(line[0] == '@' && line.find("@ERR") != std::string::npos)
 			++count;
 	}
 
@@ -136,9 +136,9 @@ int main(const int argc, char** argv)
 		
 	while (std::getline(inputStream, line))
 	{
-		if (line[0] == '@' && line.find("length") != std::string::npos)
+		if (line[0] == '@' && line.find("@ERR") != std::string::npos)
 		{
-			if (current % repEvery == 0)
+			if (current % repEvery == 0 && index < numberOfFilesToOutput )
 			{
 				outputStream.close();
 				auto tempString{ output};
@@ -157,7 +157,6 @@ int main(const int argc, char** argv)
 		outputStream << line << '\n';
 	}
 	outputStream.flush();
-	//czemu bez tego nie dziala?
 
 	std::vector<std::size_t> sizesWithoutCompression{};
 	std::vector<std::size_t> sizesWithCompression{};
@@ -199,7 +198,7 @@ int main(const int argc, char** argv)
 
 	{
 		std::stringstream sstream{};
-		sstream << "\nAverage compression ratio: " << avgRatio << '\n';
+		sstream << std::setprecision(3) << std::fixed << "\nAverage compression ratio: " << avgRatio << '\n';
 		logStream << sstream.view();
 		std::cout << sstream.view();
 	}
@@ -215,7 +214,7 @@ int main(const int argc, char** argv)
 
 	{
 		std::stringstream sstream{};
-		sstream << std::setprecision(3) << std::fixed << "Delta: " << avgRatio-ratio << "\n";
+		sstream << std::setprecision(3) << std::fixed << "Total sequences: " << count <<"\tDelta: " << ratio - avgRatio<< "\n";
 		std::cout << sstream.view();
 		logStream << sstream.view();
 	}
