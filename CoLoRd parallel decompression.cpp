@@ -131,14 +131,14 @@ int main(const int argc, char** argv)
 	int repEvery{ count / numberOfFilesToOutput };
 
 	std::vector<std::string> directories{};
-	std::size_t index{};
-	std::size_t current{};
-
+	std::size_t index{0};
+	std::size_t current{0};
+		
 	while (std::getline(inputStream, line))
 	{
 		if (line[0] == '@' && line.find("length") != std::string::npos)
 		{
-			if (current % repEvery == 0)
+			if (current+ % repEvery == 0)
 			{
 				outputStream.close();
 				auto tempString{ output};
@@ -165,7 +165,7 @@ int main(const int argc, char** argv)
 	for(const auto& path: directories)
 	{
 		sizesWithoutCompression.emplace_back(file_size(std::filesystem::path(path)));
-		std::string tempOutput{path.substr(0, path.find_last_of('.')).append("c.fastq") };
+		std::string tempOutput{path.substr(0, path.find_last_of('.')).append("c.fastqcomp") };
 		std::string temp{" " + colord.path};
 		temp.append(colord.mode).append(colord.arguments).append(path).append(" " + tempOutput);
 
