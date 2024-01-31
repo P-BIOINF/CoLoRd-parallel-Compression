@@ -24,15 +24,14 @@ private:
 	std::string m_output{};
 	std::uint32_t m_numberOfFilesToOutput{};
 	Status m_status{ Status::not_ready };
+	Streams m_streams{};
 
-	
 public:
 	Parallel() = default;
 
 	Status parseArguments(const int argc, char** argv);
 
-		
-public:
+
 	[[nodiscard]] Status getStatus() const
 	{
 		return m_status;
@@ -47,7 +46,11 @@ public:
 	{
 		return m_mode;
 	}
+
+	[[nodiscard]] Streams& getStreams()
+	{
+		return m_streams;
+	}
 };
 
 #endif
-
