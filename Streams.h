@@ -55,9 +55,9 @@ public:
 		return m_logs;
 	}
 
-	bool good()
+	bool good() const
 	{
-		return m_input == std::ofstream::iostate::goodstate && m_output == std::ofstream::iostate::goodstate && m_logs == std::ofstream::iostate::goodstate;
+		return m_input.good() && m_output.good() && m_logs.good();
 	}
 
 };
