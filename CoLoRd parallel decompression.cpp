@@ -14,93 +14,125 @@ enum Failed
 	max_failed,
 };
 
-struct Colord
+class Colord
 {
+private:
 	std::string path{};
 	std::string mode{};
 	std::string arguments{};
+	std::string input{};
+	std::string output{};
+	int numberOfFilesToOutput{};
+	Failed failed{ no };
+
+	Colord(int argc, char** argv)
+	{
+		for (int i{ 0 }; i < argc - 1; ++i)
+		{
+			if (std::string param{ argv[i] }; param == "-i")
+				this->input = argv[++i];
+			else if (param == "-o")
+				this->output = argv[++i];
+			else if (param == "-c")
+			{
+				try
+				{
+					this->numberOfFilesToOutput = std::stoi(argv[++i]);
+				}
+				catch (...)
+				{
+					failed = yes;
+
+					break;
+				}
+			}
+			else if (param == "-a")
+			{
+				this->path = argv[++i];
+			}
+			else if (param == "-m")
+			{
+				this->mode.append(" ").append(argv[++i]);
+			}
+			else if (param == "-k" || param == "--kmer - len")
+			{
+				this->arguments.append(" -k ").append(argv[++i]);
+			}
+			else if (param == "-t" || param == "--threads")
+			{
+				this->arguments.append(" -t ").append(argv[++i]);
+			}
+			else if (param == "-p" || param == "--priority")
+			{
+				this->arguments.append(" -p ").append(argv[++i]);
+			}
+			else if (param == "-q" || param == "--qual")
+			{
+				this->arguments.append(" -q ").append(argv[++i]);
+			}
+			else if (param == "-T" || param == "--qual-thresholds")
+			{
+				this->arguments.append(" -T ").append(argv[++i]);
+			}
+			else if (param == "-D" || param == "--qual-values")
+			{
+				this->arguments.append(" -D ").append(argv[++i]);
+			}
+			else if (param == "-G" || param == "--reference-genome")
+			{
+				this->arguments.append(" -DG").append(argv[++i]);
+			}
+			else if (param == "-s" || param == "--store-reference")
+			{
+				this->arguments.append(" -s ").append(argv[++i]);
+			}
+			else if (param == "-v" || param == "--verbose")
+			{
+				this->arguments.append(" -v ").append(argv[++i]);
+			}
+		}
+		this->arguments.append(" ");
+	}
+public:
+	const std::string& getPath() const
+	{
+		return this->path;
+	}
+	const std::string& getMode() const
+	{
+		return this->mode;
+	}
+	const std::string& getArguments() const
+	{
+		return this->arguments;
+	}
+	const std::string& getInput() const
+	{
+		return this->input;
+	}
+	const std::string& getOutput() const
+	{
+		return this->output;
+	}
+	const int getNumberOfFilesToOutput() const
+	{
+		return this->numberOfFilesToOutput;
+	}
+	const Failed getFailed() const
+	{
+		return this->failed;
+	}
 };
 
 int main(const int argc, char** argv)
 {
-	std::string input{};
-	std::string output{};
-	Colord colord{};
-	int numberOfFilesToOutput{};
-	Failed failed{no};
-
-	for (int i{ 0 }; i < argc - 1; ++i)
-	{
-		if (std::string param{ argv[i] }; param == "-i")
-			input = argv[++i];
-		else if (param == "-o")
-			output = argv[++i];
-		else if (param == "-c")
-		{
-			try
-			{
-				numberOfFilesToOutput = std::stoi(argv[++i]);
-			}
-			catch (...)
-			{
-				failed = yes;
-
-				break;
-			}
-		}
-		else if (param == "-a")
-		{
-			colord.path = argv[++i];
-		}
-		else if (param == "-m")
-		{
-			colord.mode.append(" ").append(argv[++i]);
-		}
-		else if (param == "-k" || param == "--kmer - len")
-		{
-			colord.arguments.append(" -k ").append(argv[++i]);
-		}
-		else if (param == "-t" || param == "--threads")
-		{
-			colord.arguments.append(" -t ").append(argv[++i]);
-		}
-		else if (param == "-p" || param == "--priority")
-		{
-			colord.arguments.append(" -p ").append(argv[++i]);
-		}
-		else if (param == "-q" || param == "--qual")
-		{
-			colord.arguments.append(" -q ").append(argv[++i]);
-		}
-		else if (param == "-T" || param == "--qual-thresholds")
-		{
-			colord.arguments.append(" -T ").append(argv[++i]);
-		}
-		else if (param == "-D" || param == "--qual-values")
-		{
-			colord.arguments.append(" -D ").append(argv[++i]);
-		}
-		else if (param == "-G" || param == "--reference-genome")
-		{
-			colord.arguments.append(" -DG").append(argv[++i]);
-		}
-		else if (param == "-s" || param == "--store-reference")
-		{
-			colord.arguments.append(" -s ").append(argv[++i]);
-		}
-		else if (param == "-v" || param == "--verbose")
-		{
-			colord.arguments.append(" -v ").append(argv[++i]);
-		}
-	}
-
-	colord.arguments.append(" ");
-
-	std::ifstream inputStream{ input };
+	Colord colord(argc, argv); //?
+	// tu byl for
+	std::ifstream inputStream{ colord.getInput()};
 	std::ofstream outputStream{};
-	std::ofstream logStream{ output.substr(0,output.find_last_of('\\') == std::string::npos ? 0 : output.find_last_of('\\')+1).append("logs.txt")};
+	std::ofstream logStream{ colord.getOutput().substr(0,colord.getOutput().find_last_of('\\') == std::string::npos ? 0 : colord.getOutput().find_last_of('\\') + 1).append("logs.txt")};
 
-	if(!inputStream || colord.mode.empty() || colord.path.empty())
+	if(!inputStream || colord.getMode().empty() || colord.getPath().empty())
 	{
 		std::cerr << "There was a problem!\n"
 			    "Try using:\n"
@@ -108,7 +140,7 @@ int main(const int argc, char** argv)
 		return -1;
 	}
 
-	if(failed != no)
+	if(colord.getFailed() != no)
 	{
 		std::cerr << "Invalid count\n"
 				"Try using:\n"
@@ -128,7 +160,7 @@ int main(const int argc, char** argv)
 	inputStream.clear();
 	inputStream.seekg(std::ios_base::beg);
 
-	int repEvery{ count / numberOfFilesToOutput };
+	int repEvery{ count / colord.getNumberOfFilesToOutput() };
 
 	std::vector<std::string> directories{};
 	std::size_t index{0};
@@ -138,11 +170,11 @@ int main(const int argc, char** argv)
 	{
 		if (line[0] == '@' && line.find("@ERR") != std::string::npos)
 		{
-			if (current % repEvery == 0 && index < numberOfFilesToOutput )
+			if (current % repEvery == 0 && index < colord.getNumberOfFilesToOutput())
 			{
 				outputStream.close();
-				auto tempString{ output};
-				outputStream.open(tempString.insert(output.length(), std::to_string(++index)).append(".fastq"));
+				auto tempString{ colord.getOutput()};
+				outputStream.open(tempString.insert(colord.getOutput().length(), std::to_string(++index)).append(".fastq"));
 				if(!outputStream)
 				{
 					std::cerr << "There was a problem!\n"
@@ -165,19 +197,19 @@ int main(const int argc, char** argv)
 	{
 		sizesWithoutCompression.emplace_back(file_size(std::filesystem::path(path)));
 		std::string tempOutput{path.substr(0, path.find_last_of('.')).append("c.fastqcomp") };
-		std::string temp{" " + colord.path};
-		temp.append(colord.mode).append(colord.arguments).append(path).append(" " + tempOutput);
+		std::string temp{" " + colord.getPath()};
+		temp.append(colord.getMode()).append(colord.getArguments()).append(path).append(" " + tempOutput);
 
 		std::system(temp.data());
 		sizesWithCompression.emplace_back(file_size(std::filesystem::path(tempOutput)));
 		std::cout << std::endl;
 	}
 
-	const std::size_t originalSizeWithoutCompression{ std::filesystem::file_size(input )};
+	const std::size_t originalSizeWithoutCompression{ std::filesystem::file_size(colord.getInput( ))};
 	//const std::size_t originalSizeWithoutCompression{ std::filesystem::file_size(std::filesystem::current_path().append(input).string()) };
-	std::string tempOutput{input.substr(0, input.find_last_of('.')).append("c.fastqcomp") };
-	std::string temp{ " " + colord.path };
-	temp.append(colord.mode).append(colord.arguments).append(input).append(" " + tempOutput);
+	std::string tempOutput{ colord.getInput().substr(0, colord.getInput().find_last_of('.')).append("c.fastqcomp") };
+	std::string temp{ " " + colord.getPath()};
+	temp.append(colord.getMode()).append(colord.getArguments()).append(colord.getInput()).append(" " + tempOutput);
 	std::system(temp.data());
 	std::size_t originalSizeWithCompression{ file_size(std::filesystem::path(tempOutput)) };
 
