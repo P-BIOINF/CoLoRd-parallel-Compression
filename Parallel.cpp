@@ -70,10 +70,7 @@ Status Parallel::parseArguments(const int argc, char** argv)
 	}
 	m_arguments.append(" ");
 
-	if()
-	{
-		
-	}
+
 
 	return getStatus();
 }

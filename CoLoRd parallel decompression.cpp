@@ -6,17 +6,19 @@
 #include <vector>
 #include <sstream>
 
-
+#include "Parallel.h"
 
 
 
 int main(const int argc, char** argv)
 {
-	Colord colord(argc, argv);
+	Parallel parallel{};
 
-	std::ifstream inputStream{ colord.getInput()};
+	parallel.parseArguments(argc, argv);
+		
+	/*std::ifstream inputStream{ colord.getInput()};
 	std::ofstream outputStream{};
-	std::ofstream logStream{ colord.getOutput().substr(0,colord.getOutput().find_last_of('\\') == std::string::npos ? 0 : colord.getOutput().find_last_of('\\') + 1).append("logs.txt")};
+	std::ofstream logStream{ colord.getOutput().substr(0,colord.getOutput().find_last_of('\\') == std::string::npos ? 0 : colord.getOutput().find_last_of('\\') + 1).append("logs.txt")};*/
 
 	if(!inputStream || colord.getMode().empty() || colord.getPath().empty())
 	{
