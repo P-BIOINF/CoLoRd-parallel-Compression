@@ -55,7 +55,7 @@ public:
 		return m_logs;
 	}
 
-	bool good() const
+	[[nodiscard]] bool good() const
 	{
 		return m_input.good() && m_output.good() && m_logs.good();
 	}
