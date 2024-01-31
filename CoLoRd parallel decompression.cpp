@@ -1,4 +1,5 @@
 #include <iostream>
+#include <stdio.h>
 #include <fstream>
 #include <string>
 #include <cstdlib>
@@ -25,63 +26,25 @@ int main(const int argc, char** argv)
 	std::ofstream outputStream{};
 	std::ofstream logStream{ colord.getOutput().substr(0,colord.getOutput().find_last_of('\\') == std::string::npos ? 0 : colord.getOutput().find_last_of('\\') + 1).append("logs.txt")};*/
 
+	//Od lini 29 do 45 trzeba pozmieniaæ lub gdzieœ indziej ustawiæ ni¿ w mainie np. dodam metode
+
 	if(!inputStream || colord.getMode().empty() || colord.getPath().empty())
 	{
-		std::cerr << "There was a problem!\n"
+		fprintf(stderr, "There was a problem!\n"
 			    "Try using:\n"
-				"-o <output directory> -i <input directory> -a <colord directory> -m {colord mode}\n";
+				"-o <output directory> -i <input directory> -a <colord directory> -m {colord mode}\n");
 		return -1;
 	}
 
 	if(colord.getFailed() != no)
 	{
-		std::cerr << "Invalid count\n"
+		fprintf(stderr, "Invalid count\n"
 				"Try using:\n"
-				"-c {int}\n";
+				"-c {int}\n");
 		return -1;
 	}
 
-	int count{ 0 };
-	std::string line{};
-	while (std::getline(inputStream,line))
-	{
-		if(line[0] == '@' && line.find("@ERR") != std::string::npos)
-			++count;
-	}
-
-
-	inputStream.clear();
-	inputStream.seekg(std::ios_base::beg);
-
-	int repEvery{ count / colord.getNumberOfFilesToOutput() };
-
-	std::vector<std::string> directories{};
-	std::size_t index{0};
-	std::size_t current{0};
-		
-	while (std::getline(inputStream, line))
-	{
-		if (line[0] == '@' && line.find("@ERR") != std::string::npos)
-		{
-			if (current % repEvery == 0 && index < colord.getNumberOfFilesToOutput())
-			{
-				outputStream.close();
-				auto tempString{ colord.getOutput()};
-				outputStream.open(tempString.insert(colord.getOutput().length(), std::to_string(++index)).append(".fastq"));
-				if(!outputStream)
-				{
-					std::cerr << "There was a problem!\n"
-						"Try using:\n"
-						"-o <output directory> -i <input directory> -a <colord directory> -m {colord mode}\n";
-					return -1;
-				}
-				directories.emplace_back(std::filesystem::current_path().append(tempString).string());
-			}
-			++current;
-		}
-		outputStream << line << '\n';
-	}
-	outputStream.flush();
+	//Do t¹d da³em do klasy, dokoñczyæ trzeba
 
 	std::vector<std::size_t> sizesWithoutCompression{};
 	std::vector<std::size_t> sizesWithCompression{};

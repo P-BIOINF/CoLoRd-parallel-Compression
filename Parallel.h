@@ -3,6 +3,7 @@
 
 #include <utility>
 #include <string>
+#include <vector>
 #include "Streams.h"
 
 enum class Status
@@ -25,12 +26,18 @@ private:
 	std::uint32_t m_numberOfFilesToOutput{};
 	Status m_status{ Status::not_ready };
 	Streams m_streams{};
+	int m_count{ 0 };
+	int m_repEvery{ 0 };
+	std::vector<std::string> m_directories{};
 
 public:
 	Parallel() = default;
 
 	Status parseArguments(const int argc, char** argv);
 
+	int CalculateCount();
+
+	bool createFiles();
 
 	[[nodiscard]] Status getStatus() const
 	{
@@ -60,6 +67,11 @@ public:
 	[[nodiscard]] std::ofstream& getLogsStream()
 	{
 		return m_streams.getLogsStream();
+	}
+
+	[[nodiscard]] int& getrepEvery()
+	{
+		return m_repEvery;
 	}
 };
 
