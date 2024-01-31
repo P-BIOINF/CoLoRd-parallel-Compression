@@ -47,9 +47,19 @@ public:
 		return m_mode;
 	}
 
-	[[nodiscard]] Streams& getStreams()
+	[[nodiscard]] std::ifstream& getInputStream()
 	{
-		return m_streams;
+		return m_streams.getInputStream();
+	}
+
+	[[nodiscard]] std::ofstream& getOutputStream()
+	{
+		return m_streams.getOutputStream();
+	}
+
+	[[nodiscard]] std::ofstream& getLogsStream()
+	{
+		return m_streams.getLogsStream();
 	}
 };
 

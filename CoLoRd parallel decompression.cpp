@@ -14,8 +14,13 @@ int main(const int argc, char** argv)
 {
 	Parallel parallel{};
 
-	parallel.parseArguments(argc, argv);
+	if(parallel.parseArguments(argc, argv) != Status::ready)
+	{
 		
+	}
+
+	parallel.getInputStream();
+
 	/*std::ifstream inputStream{ colord.getInput()};
 	std::ofstream outputStream{};
 	std::ofstream logStream{ colord.getOutput().substr(0,colord.getOutput().find_last_of('\\') == std::string::npos ? 0 : colord.getOutput().find_last_of('\\') + 1).append("logs.txt")};*/
