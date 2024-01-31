@@ -18,10 +18,24 @@
     <ClCompile Include="CoLoRd parallel decompression.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Streams.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Parallel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="test.fastq">
       <Filter>Resource Files</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Streams.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Parallel.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

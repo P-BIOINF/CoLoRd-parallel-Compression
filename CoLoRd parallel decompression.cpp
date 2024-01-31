@@ -6,128 +6,14 @@
 #include <vector>
 #include <sstream>
 
-enum Failed
-{
-	no,
-	yes,
 
-	max_failed,
-};
 
-class Colord
-{
-private:
-	std::string path{};
-	std::string mode{};
-	std::string arguments{};
-	std::string input{};
-	std::string output{};
-	int numberOfFilesToOutput{};
-	Failed failed{ no };
 
-	Colord(int argc, char** argv)
-	{
-		for (int i{ 0 }; i < argc - 1; ++i)
-		{
-			if (std::string param{ argv[i] }; param == "-i")
-				this->input = argv[++i];
-			else if (param == "-o")
-				this->output = argv[++i];
-			else if (param == "-c")
-			{
-				try
-				{
-					this->numberOfFilesToOutput = std::stoi(argv[++i]);
-				}
-				catch (...)
-				{
-					failed = yes;
-
-					break;
-				}
-			}
-			else if (param == "-a")
-			{
-				this->path = argv[++i];
-			}
-			else if (param == "-m")
-			{
-				this->mode.append(" ").append(argv[++i]);
-			}
-			else if (param == "-k" || param == "--kmer - len")
-			{
-				this->arguments.append(" -k ").append(argv[++i]);
-			}
-			else if (param == "-t" || param == "--threads")
-			{
-				this->arguments.append(" -t ").append(argv[++i]);
-			}
-			else if (param == "-p" || param == "--priority")
-			{
-				this->arguments.append(" -p ").append(argv[++i]);
-			}
-			else if (param == "-q" || param == "--qual")
-			{
-				this->arguments.append(" -q ").append(argv[++i]);
-			}
-			else if (param == "-T" || param == "--qual-thresholds")
-			{
-				this->arguments.append(" -T ").append(argv[++i]);
-			}
-			else if (param == "-D" || param == "--qual-values")
-			{
-				this->arguments.append(" -D ").append(argv[++i]);
-			}
-			else if (param == "-G" || param == "--reference-genome")
-			{
-				this->arguments.append(" -DG").append(argv[++i]);
-			}
-			else if (param == "-s" || param == "--store-reference")
-			{
-				this->arguments.append(" -s ").append(argv[++i]);
-			}
-			else if (param == "-v" || param == "--verbose")
-			{
-				this->arguments.append(" -v ").append(argv[++i]);
-			}
-		}
-		this->arguments.append(" ");
-	}
-public:
-	const std::string& getPath() const
-	{
-		return this->path;
-	}
-	const std::string& getMode() const
-	{
-		return this->mode;
-	}
-	const std::string& getArguments() const
-	{
-		return this->arguments;
-	}
-	const std::string& getInput() const
-	{
-		return this->input;
-	}
-	const std::string& getOutput() const
-	{
-		return this->output;
-	}
-	const int getNumberOfFilesToOutput() const
-	{
-		return this->numberOfFilesToOutput;
-	}
-	const Failed getFailed() const
-	{
-		return this->failed;
-	}
-};
 
 int main(const int argc, char** argv)
 {
-	Colord colord(argc, argv); //?
-	// tu byl for
+	Colord colord(argc, argv);
+
 	std::ifstream inputStream{ colord.getInput()};
 	std::ofstream outputStream{};
 	std::ofstream logStream{ colord.getOutput().substr(0,colord.getOutput().find_last_of('\\') == std::string::npos ? 0 : colord.getOutput().find_last_of('\\') + 1).append("logs.txt")};

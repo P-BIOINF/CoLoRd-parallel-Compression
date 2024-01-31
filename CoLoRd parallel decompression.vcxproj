@@ -131,9 +131,15 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CoLoRd parallel decompression.cpp" />
+    <ClCompile Include="Parallel.cpp" />
+    <ClCompile Include="Streams.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="test.fastq" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Parallel.h" />
+    <ClInclude Include="Streams.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
