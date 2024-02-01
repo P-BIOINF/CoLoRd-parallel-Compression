@@ -1,7 +1,7 @@
 ﻿#include "Parallel.h"
 #include <iostream>
 #include <string>
-#include <stdio.h>
+#include <cstdio>
 #include <fstream>
 #include <filesystem>
 
