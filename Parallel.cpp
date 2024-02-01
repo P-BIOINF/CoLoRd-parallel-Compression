@@ -124,7 +124,7 @@ bool Parallel::createFiles()
 	return true;
 }
 
-const std::size_t Parallel::calculateFileSizes(std::ofstream& logStream)
+std::size_t Parallel::calculateFileSizes(std::ofstream& logStream)
 {
 	for (const auto& path : m_directories)
 	{

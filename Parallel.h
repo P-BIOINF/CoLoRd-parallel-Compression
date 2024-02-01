@@ -44,7 +44,7 @@ public:
 
 	bool createFiles();
 
-	const std::size_t calculateFileSizes(std::ofstream& logStream);
+	std::size_t calculateFileSizes(std::ofstream& logStream);
 
 	void AverageRatio(std::ofstream& logStream);
 
