@@ -178,7 +178,7 @@ void Parallel::printAvgRatio()
 void Parallel::printFileSizes()
 {
 	const long double ratio{ m_originalSizeWithoutCompression / static_cast<long double>(m_originalSizeWithCompression) };
-	std::stringstream sSsync_with_stdiotream{};
+	std::stringstream sStream{};
 	sStream << std::setprecision(3) << std::fixed << "Size of the original file w/o compression: " << m_originalSizeWithoutCompression / static_cast<long double>(1024)
 		<< "kbs\tw/ compression: " << m_originalSizeWithCompression / static_cast<long double>(1024) << "kbs\tcompression ratio: " << ratio << "\n\n";
 	std::cout << sStream.view();
