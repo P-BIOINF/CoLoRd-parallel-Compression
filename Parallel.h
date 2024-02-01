@@ -44,13 +44,13 @@ public:
 
 	bool createFiles();
 
-	std::size_t calculateFileSizes(std::ofstream& logStream);
+	std::size_t calculateFileSizes();
 
-	void averageRatio(std::ofstream& logStream) const;
+	void averageRatio();
 
-	auto printFileSizes(std::ofstream& logStream, const std::size_t& originalSizeWithoutCompression) const;
+	long double printFileSizes(const std::size_t& originalSizeWithoutCompression);
 
-	void totalSequences(std::ofstream& logStream, auto& ratio);
+	void totalSequences(auto& ratio);
 
 	[[nodiscard]] Status getStatus() const
 	{
@@ -82,9 +82,19 @@ public:
 		return m_streams.getLogsStream();
 	}
 
-	[[nodiscard]] int& getrepEvery()
+	[[nodiscard]] int getRepEvery() const
 	{
 		return m_repEvery;
+	}
+
+	[[nodiscard]] const std::string& getInput() const
+	{
+		return m_input;
+	}
+
+	[[nodiscard]] const std::string& getOutput() const
+	{
+		return m_output;
 	}
 };
 

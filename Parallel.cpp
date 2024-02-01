@@ -74,7 +74,12 @@ Status Parallel::parseArguments(const int argc, char** argv)
 	}
 	m_arguments.append(" ");
 
+	if(m_path.empty() && m_mode.empty())
+	{
+		m_status = Status::not_ready;
 
+		return getStatus();
+	}
 
 	return getStatus();
 }
@@ -124,7 +129,7 @@ bool Parallel::createFiles()
 	return true;
 }
 
-std::size_t Parallel::calculateFileSizes(std::ofstream& logStream)
+std::size_t Parallel::calculateFileSizes()
 {
 	for (const auto& path : m_directories)
 	{
@@ -140,10 +145,11 @@ std::size_t Parallel::calculateFileSizes(std::ofstream& logStream)
 
 	const std::size_t originalSizeWithoutCompression{ std::filesystem::file_size(m_input) };
 	//const std::size_t originalSizeWithoutCompression{ std::filesystem::file_size(std::filesystem::current_path().append(input).string()) };
-	std::string tempOutput{ m_input.substr(0, m_input.find_last_of('.')).append("c.fastqcomp") };
+	const std::string tempOutput{ m_input.substr(0, m_input.find_last_of('.')).append("c.fastqcomp") };
 	std::string temp{ " " +m_path };
 	temp.append(m_mode).append(m_arguments).append(m_input).append(" " + tempOutput);
 	std::system(temp.data());
+
 	m_originalSizeWithCompression = file_size(std::filesystem::path(tempOutput));
 	printf("\n");
 	for (std::size_t i{ 0 }; i < m_index; ++i)
@@ -153,38 +159,39 @@ std::size_t Parallel::calculateFileSizes(std::ofstream& logStream)
 		std::stringstream tempStream{};
 		tempStream << std::setprecision(3) << std::fixed << "Size of file #" << i + 1 << ":\nw/o compression: " << m_sizesWithoutCompression[i] / static_cast<long double>(1024)
 			<< "kbs\tw/ compression: " << m_sizesWithCompression[i] / static_cast<long double>(1024) << "kbs\tcompression ratio: " << ratio << '\n';
-		logStream << tempStream.view();
+		m_streams.getLogsStream() << tempStream.view();
 		std::cout << tempStream.view();
 	}
 	m_avgRatio /= m_index;
 	return originalSizeWithoutCompression;
 }
 
-void Parallel::averageRatio(std::ofstream& logStream) const
+void Parallel::averageRatio()
 {
 	{
-		std::stringstream sstream{};
-		sstream << std::setprecision(3) << std::fixed << "\nAverage compression ratio: " << m_avgRatio << '\n';
-		logStream << sstream.view();
-		std::cout << sstream.view();
+		std::stringstream sStream{};
+		sStream << std::setprecision(3) << std::fixed << "\nAverage compression ratio: " << m_avgRatio << '\n';
+		m_streams.getLogsStream() << sStream.view();
+		std::cout << sStream.view();
 	}
 }
 
-auto Parallel::printFileSizes(std::ofstream& logStream, const std::size_t& originalSizeWithoutCompression) const
+long double Parallel::printFileSizes(const std::size_t& originalSizeWithoutCompression)
 {
-	auto ratio{ originalSizeWithoutCompression / static_cast<long double>(m_originalSizeWithCompression) };
-	std::stringstream sstream{};
-	sstream << std::setprecision(3) << std::fixed << "Size of the original file w/o compression: " << originalSizeWithoutCompression / static_cast<long double>(1024)
+	const long double ratio{ originalSizeWithoutCompression / static_cast<long double>(m_originalSizeWithCompression) };
+	std::stringstream sStream{};
+	sStream << std::setprecision(3) << std::fixed << "Size of the original file w/o compression: " << originalSizeWithoutCompression / static_cast<long double>(1024)
 		<< "kbs\tw/ compression: " << m_originalSizeWithCompression / static_cast<long double>(1024) << "kbs\tcompression ratio: " << ratio << "\n\n";
-	std::cout << sstream.view();
-	logStream << sstream.view();
+	std::cout << sStream.view();
+	m_streams.getLogsStream() << sStream.view();
+
 	return ratio;
 }
 
-void Parallel::totalSequences(std::ofstream& logStream, auto& ratio)
+void Parallel::totalSequences(auto& ratio)
 {
-	std::stringstream sstream{};
-	sstream << std::setprecision(3) << std::fixed << "Total sequences: " << m_count << "\tDelta: " << ratio - m_avgRatio << "\n";
-	std::cout << sstream.view();
-	logStream << sstream.view();
+	std::stringstream sStream{};
+	sStream << std::setprecision(3) << std::fixed << "Total sequences: " << m_count << "\tDelta: " << ratio - m_avgRatio << "\n";
+	std::cout << sStream.view();
+	m_streams.getLogsStream() << sStream.view();
 }

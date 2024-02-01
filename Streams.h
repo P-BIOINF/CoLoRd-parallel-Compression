@@ -36,7 +36,7 @@ public:
     {
         if (m_output.is_open())
             m_output.close();
-        m_out.open(output);
+        m_output.open(output);
         return m_output.good();
     }
 
