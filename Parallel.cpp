@@ -124,7 +124,7 @@ bool Parallel::createFiles()
 	return true;
 }
 
-const std::size_t Parallel::jakasnazwa(std::ofstream& logStream)
+const std::size_t Parallel::calculateFileSizes(std::ofstream& logStream)
 {
 	for (const auto& path : m_directories)
 	{
@@ -170,7 +170,7 @@ void Parallel::AverageRatio(std::ofstream& logStream)
 	}
 }
 
-auto Parallel::fileSizes(std::ofstream& logStream, const std::size_t& originalSizeWithoutCompression)
+auto Parallel::printFileSizes(std::ofstream& logStream, const std::size_t& originalSizeWithoutCompression)
 {
 	auto ratio{ originalSizeWithoutCompression / static_cast<long double>(m_originalSizeWithCompression) };
 	std::stringstream sstream{};
