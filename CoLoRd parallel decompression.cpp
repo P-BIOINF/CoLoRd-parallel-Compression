@@ -6,6 +6,8 @@
 
 int main(const int argc, char** argv)
 {
+	std::ios_base::sync_with_stdio(false);
+
 	Parallel parallel{};
 
 	if(parallel.parseArguments(argc, argv) != Status::ready)

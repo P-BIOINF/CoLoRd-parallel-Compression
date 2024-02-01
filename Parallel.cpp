@@ -1,7 +1,6 @@
 ﻿#include "Parallel.h"
 #include <iostream>
 #include <string>
-#include <cstdio>
 #include <fstream>
 #include <filesystem>
 
@@ -116,9 +115,9 @@ bool Parallel::createFiles()
 				m_streams.getOutputStream().open(tempString.insert(m_output.length(), std::to_string(++m_index)).append(".fastq"));
 				if (!m_streams.getOutputStream())
 				{
-					fprintf(stderr, "There was a problem!\n"
+					std::cerr<< "There was a problem!\n"
 						"Try using:\n"
-						"-o <output directory> -i <input directory> -a <colord directory> -m {colord mode}\n");
+						"-o <output directory> -i <input directory> -a <colord directory> -m {colord mode}\n";
 					return false;
 				}
 				m_directories.emplace_back(std::filesystem::current_path().append(tempString).string());
@@ -142,7 +141,8 @@ void Parallel::compress()
 
 		std::system(temp.data());
 		m_sizesWithCompression.emplace_back(file_size(std::filesystem::path(tempOutput)));
-		printf("\n");
+		std::cout << "\n";
+
 	}
 
 	m_originalSizeWithoutCompression = std::filesystem::file_size(m_input);
@@ -153,7 +153,7 @@ void Parallel::compress()
 	std::system(temp.data());
 
 	m_originalSizeWithCompression = file_size(std::filesystem::path(tempOutput));
-	printf("\n");
+	std::cout<< "\n";
 	for (std::size_t i{ 0 }; i < m_index; ++i)
 	{
 		const auto ratio{ m_sizesWithoutCompression[i] / static_cast<long double> (m_sizesWithCompression[i]) };
@@ -178,7 +178,7 @@ void Parallel::printAvgRatio()
 void Parallel::printFileSizes()
 {
 	const long double ratio{ m_originalSizeWithoutCompression / static_cast<long double>(m_originalSizeWithCompression) };
-	std::stringstream sStream{};
+	std::stringstream sSsync_with_stdiotream{};
 	sStream << std::setprecision(3) << std::fixed << "Size of the original file w/o compression: " << m_originalSizeWithoutCompression / static_cast<long double>(1024)
 		<< "kbs\tw/ compression: " << m_originalSizeWithCompression / static_cast<long double>(1024) << "kbs\tcompression ratio: " << ratio << "\n\n";
 	std::cout << sStream.view();
