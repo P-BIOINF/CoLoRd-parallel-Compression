@@ -122,6 +122,14 @@ public:
 		return m_streams.getInputStream();
 	}
 
+	/**
+	 * \brief checks if all streams are set properly
+	 * \return m_streams.good();
+	 */
+	[[nodiscard]] bool good() const
+	{
+		return m_streams.good();
+	}
 
 	/**
 	 * \brief returns the outputStream object

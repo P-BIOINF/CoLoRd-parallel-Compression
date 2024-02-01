@@ -22,9 +22,22 @@ int main(const int argc, char** argv)
 	parallel.getInputStream().open(parallel.getInput());
 	parallel.getOutputStream().open(std::filesystem::current_path().append("/logs/logs.txt"));
 
+	if(!parallel.getInputStream().good() && !parallel.getOutputStream().good())
+	{
+		std::cerr << "Something went wrong! Please make sure that you have included:\n"
+			"-o <output directory> -i <input directory> -a <colord directory> -m {colord mode} -c {count}\n";
+
+		return -2;
+	}
+
 	parallel.calculateCount();
 	if (!parallel.createFiles())
-		return -1;
+	{
+		std::cerr << "Something went wrong! Please make sure that you have included:\n"
+			"-o <output directory> -i <input directory> -a <colord directory> -m {colord mode} -c {count}\n";
+
+		return -3;
+	}
 
 	parallel.compress();
 	parallel.printAvgRatio();

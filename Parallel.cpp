@@ -115,9 +115,7 @@ bool Parallel::createFiles()
 				m_streams.getOutputStream().open(tempString.insert(m_output.length(), std::to_string(++m_index)).append(".fastq"));
 				if (!m_streams.getOutputStream())
 				{
-					std::cerr<< "There was a problem!\n"
-						"Try using:\n"
-						"-o <output directory> -i <input directory> -a <colord directory> -m {colord mode}\n";
+					
 					return false;
 				}
 				m_directories.emplace_back(std::filesystem::current_path().append(tempString).string());
