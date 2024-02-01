@@ -46,9 +46,9 @@ public:
 
 	std::size_t calculateFileSizes(std::ofstream& logStream);
 
-	void AverageRatio(std::ofstream& logStream);
+	void averageRatio(std::ofstream& logStream) const;
 
-	auto printFileSizes(std::ofstream& logStream, const std::size_t& originalSizeWithoutCompression);
+	auto printFileSizes(std::ofstream& logStream, const std::size_t& originalSizeWithoutCompression) const;
 
 	void totalSequences(std::ofstream& logStream, auto& ratio);
 

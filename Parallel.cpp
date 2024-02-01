@@ -160,7 +160,7 @@ std::size_t Parallel::calculateFileSizes(std::ofstream& logStream)
 	return originalSizeWithoutCompression;
 }
 
-void Parallel::AverageRatio(std::ofstream& logStream)
+void Parallel::averageRatio(std::ofstream& logStream) const
 {
 	{
 		std::stringstream sstream{};
@@ -170,7 +170,7 @@ void Parallel::AverageRatio(std::ofstream& logStream)
 	}
 }
 
-auto Parallel::printFileSizes(std::ofstream& logStream, const std::size_t& originalSizeWithoutCompression)
+auto Parallel::printFileSizes(std::ofstream& logStream, const std::size_t& originalSizeWithoutCompression) const
 {
 	auto ratio{ originalSizeWithoutCompression / static_cast<long double>(m_originalSizeWithCompression) };
 	std::stringstream sstream{};
