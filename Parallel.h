@@ -29,15 +29,28 @@ private:
 	int m_count{ 0 };
 	int m_repEvery{ 0 };
 	std::vector<std::string> m_directories{};
+	long double m_avgRatio{};
+	std::size_t m_originalSizeWithCompression{};
+	std::size_t m_index{ 0 };
+	std::vector<std::size_t> m_sizesWithoutCompression{};
+	std::vector<std::size_t> m_sizesWithCompression{};
 
 public:
 	Parallel() = default;
 
 	Status parseArguments(const int argc, char** argv);
 
-	int CalculateCount();
+	int calculateCount();
 
 	bool createFiles();
+
+	const std::size_t jakasnazwa(std::ofstream& logStream);
+
+	void AverageRatio(std::ofstream& logStream);
+
+	auto fileSizes(std::ofstream& logStream, const std::size_t& originalSizeWithoutCompression);
+
+	void totalSequences(std::ofstream& logStream, auto& ratio);
 
 	[[nodiscard]] Status getStatus() const
 	{

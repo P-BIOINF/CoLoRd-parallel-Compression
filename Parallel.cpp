@@ -1,4 +1,5 @@
 ﻿#include "Parallel.h"
+#include <iostream>
 #include <string>
 #include <stdio.h>
 #include <fstream>
@@ -78,7 +79,7 @@ Status Parallel::parseArguments(const int argc, char** argv)
 	return getStatus();
 }
 
-int Parallel::CalculateCount()
+int Parallel::calculateCount()
 {
 	std::string line{};
 	while (std::getline(m_streams.getInputStream(), line))
@@ -95,18 +96,17 @@ int Parallel::CalculateCount()
 bool Parallel::createFiles()
 {
 	std::string line{};
-	std::size_t index{ 0 };
 	std::size_t current{ 0 };
 
 	while (std::getline(m_streams.getInputStream(), line))
 	{
 		if (line[0] == '@' && line.find("@ERR") != std::string::npos)
 		{
-			if (current % m_repEvery == 0 && index < m_numberOfFilesToOutput)
+			if (current % m_repEvery == 0 && m_index < m_numberOfFilesToOutput)
 			{
 				m_streams.getOutputStream().close();
 				auto tempString{ m_output };
-				m_streams.getOutputStream().open(tempString.insert(m_output.length(), std::to_string(++index)).append(".fastq"));
+				m_streams.getOutputStream().open(tempString.insert(m_output.length(), std::to_string(++m_index)).append(".fastq"));
 				if (!m_streams.getOutputStream())
 				{
 					fprintf(stderr, "There was a problem!\n"
@@ -122,4 +122,69 @@ bool Parallel::createFiles()
 	}
 	m_streams.getOutputStream().flush();
 	return true;
+}
+
+const std::size_t Parallel::jakasnazwa(std::ofstream& logStream)
+{
+	for (const auto& path : m_directories)
+	{
+		m_sizesWithoutCompression.emplace_back(file_size(std::filesystem::path(path)));
+		std::string tempOutput{ path.substr(0, path.find_last_of('.')).append("c.fastqcomp") };
+		std::string temp{ " " + m_path };
+		temp.append(m_mode).append(m_arguments).append(path).append(" " + tempOutput);
+
+		std::system(temp.data());
+		m_sizesWithCompression.emplace_back(file_size(std::filesystem::path(tempOutput)));
+		printf("\n");
+	}
+
+	const std::size_t originalSizeWithoutCompression{ std::filesystem::file_size(m_input) };
+	//const std::size_t originalSizeWithoutCompression{ std::filesystem::file_size(std::filesystem::current_path().append(input).string()) };
+	std::string tempOutput{ m_input.substr(0, m_input.find_last_of('.')).append("c.fastqcomp") };
+	std::string temp{ " " +m_path };
+	temp.append(m_mode).append(m_arguments).append(m_input).append(" " + tempOutput);
+	std::system(temp.data());
+	m_originalSizeWithCompression = file_size(std::filesystem::path(tempOutput));
+	printf("\n");
+	for (std::size_t i{ 0 }; i < m_index; ++i)
+	{
+		const auto ratio{ m_sizesWithoutCompression[i] / static_cast<long double> (m_sizesWithCompression[i]) };
+		m_avgRatio += ratio;
+		std::stringstream tempStream{};
+		tempStream << std::setprecision(3) << std::fixed << "Size of file #" << i + 1 << ":\nw/o compression: " << m_sizesWithoutCompression[i] / static_cast<long double>(1024)
+			<< "kbs\tw/ compression: " << m_sizesWithCompression[i] / static_cast<long double>(1024) << "kbs\tcompression ratio: " << ratio << '\n';
+		logStream << tempStream.view();
+		std::cout << tempStream.view();
+	}
+	m_avgRatio /= m_index;
+	return originalSizeWithoutCompression;
+}
+
+void Parallel::AverageRatio(std::ofstream& logStream)
+{
+	{
+		std::stringstream sstream{};
+		sstream << std::setprecision(3) << std::fixed << "\nAverage compression ratio: " << m_avgRatio << '\n';
+		logStream << sstream.view();
+		std::cout << sstream.view();
+	}
+}
+
+auto Parallel::fileSizes(std::ofstream& logStream, const std::size_t& originalSizeWithoutCompression)
+{
+	auto ratio{ originalSizeWithoutCompression / static_cast<long double>(m_originalSizeWithCompression) };
+	std::stringstream sstream{};
+	sstream << std::setprecision(3) << std::fixed << "Size of the original file w/o compression: " << originalSizeWithoutCompression / static_cast<long double>(1024)
+		<< "kbs\tw/ compression: " << m_originalSizeWithCompression / static_cast<long double>(1024) << "kbs\tcompression ratio: " << ratio << "\n\n";
+	std::cout << sstream.view();
+	logStream << sstream.view();
+	return ratio;
+}
+
+void Parallel::totalSequences(std::ofstream& logStream, auto& ratio)
+{
+	std::stringstream sstream{};
+	sstream << std::setprecision(3) << std::fixed << "Total sequences: " << m_count << "\tDelta: " << ratio - m_avgRatio << "\n";
+	std::cout << sstream.view();
+	logStream << sstream.view();
 }
