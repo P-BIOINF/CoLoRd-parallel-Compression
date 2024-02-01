@@ -24,8 +24,8 @@ int main(const int argc, char** argv)
 	if (!parallel.createFiles())
 		return -1;
 
-	parallel.calculateFileSizes();
-	parallel.averageRatio();
+	parallel.compress();
+	parallel.printAvgRatio();
 	parallel.printFileSizes();
 	parallel.totalSequences();
 

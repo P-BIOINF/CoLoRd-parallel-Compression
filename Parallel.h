@@ -40,60 +40,131 @@ private:
 public:
 	Parallel() = default;
 
+	/**
+	 * \brief parses command arguments
+	 * \param argc self-explanatory
+	 * \param argv self-explanatory
+	 * \return returns status. Status::ready if the program is ready to use
+	 */
 	Status parseArguments(const int argc, char** argv);
 
+	/**
+	 * \brief calculates the amount of sequences
+	 * requires parseArguments(const int argc, char** argv)
+	 */
 	void calculateCount();
 
+	/**
+	 * \brief divides the sequences into {count} files (can round one up/down)
+	 * \return true if there was not any problem with creating the files
+	 * requires parseArguments(const int argc, char** argv), calculateCount()
+	 */
 	bool createFiles();
 
-	void calculateFileSizes();
+	/**
+	 * \brief runs colord's compression
+	 * requires parseArguments(const int argc, char** argv), calculateCount(), createFiles() to be run before
+	 */
+	void compress();
 
-	void averageRatio();
+	/**
+	 * \brief prints avg compression ratio
+	 * requires compress() to be run before
+	 */
+	void printAvgRatio();
 
+	/**
+	 * \brief prints the size etc. of the original file (not divided)
+	 * requires compress() to be run before
+	 */
 	void printFileSizes();
 
+	/**
+	 * \brief prints the amount of sequences and the delta of the compression ratio (compressionRatioOfTheOriginalFile - averageCompressionRatioOfDividedFiles)
+	 * requires compress() to be run before
+	 */
 	void totalSequences();
 
+	/**
+	 * \brief returns current status
+	 * \return m_status
+	 */
 	[[nodiscard]] Status getStatus() const
 	{
 		return m_status;
 	}
 
+	/**
+	 * \brief returns path to the colord.exe
+	 * \return m_path
+	 */
 	[[nodiscard]] std::string_view getPath() const
 	{
 		return m_path;
 	}
 
+	/**
+	 * \brief returns mode in which colord should be run
+	 * \return m_mode
+	 */
 	[[nodiscard]] std::string_view getMode() const
 	{
 		return m_mode;
 	}
 
+	/**
+	 * \brief returns the inputStream object
+	 * the stream to the original input
+	 * \return m_streams.getInputStream()
+	 */
 	[[nodiscard]] std::ifstream& getInputStream()
 	{
 		return m_streams.getInputStream();
 	}
 
+
+	/**
+	 * \brief returns the outputStream object
+	 * the stream to output the files
+	 * \return m_stream.getOutputStream()
+	 */
 	[[nodiscard]] std::ofstream& getOutputStream()
 	{
 		return m_streams.getOutputStream();
 	}
 
+	/**
+	 * \brief returns the logStream object
+	 * the stream for outputting logs
+	 * \return m_stream.getLogsStream()
+	 */
 	[[nodiscard]] std::ofstream& getLogsStream()
 	{
 		return m_streams.getLogsStream();
 	}
 
+	/**
+	 * \brief returns the number of sequences per divided file
+	 * \return m_repEvery
+	 */
 	[[nodiscard]] int getRepEvery() const
 	{
 		return m_repEvery;
 	}
 
+	/**
+	 * \brief returns the path to the input file
+	 * \return m_input
+	 */
 	[[nodiscard]] const std::string& getInput() const
 	{
 		return m_input;
 	}
 
+	/**
+	 * \brief returns the output path
+	 * \return m_output
+	 */
 	[[nodiscard]] const std::string& getOutput() const
 	{
 		return m_output;

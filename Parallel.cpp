@@ -6,6 +6,7 @@
 #include <filesystem>
 
 
+
 Status Parallel::parseArguments(const int argc, char** argv)
 {
 	for (int i{ 0 }; i < argc - 1; ++i)
@@ -130,7 +131,7 @@ bool Parallel::createFiles()
 	return true;
 }
 
-void Parallel::calculateFileSizes()
+void Parallel::compress()
 {
 	for (const auto& path : m_directories)
 	{
@@ -166,14 +167,12 @@ void Parallel::calculateFileSizes()
 	m_avgRatio /= m_index;
 }
 
-void Parallel::averageRatio()
+void Parallel::printAvgRatio()
 {
-	{
-		std::stringstream sStream{};
-		sStream << std::setprecision(3) << std::fixed << "\nAverage compression ratio: " << m_avgRatio << '\n';
-		m_streams.getLogsStream() << sStream.view();
-		std::cout << sStream.view();
-	}
+	std::stringstream sStream{};
+	sStream << std::setprecision(3) << std::fixed << "\nAverage compression ratio: " << m_avgRatio << '\n';
+	m_streams.getLogsStream() << sStream.view();
+	std::cout << sStream.view();
 }
 
 void Parallel::printFileSizes()
