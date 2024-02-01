@@ -91,7 +91,7 @@ void Parallel::calculateCount()
 	std::string line{};
 	while (std::getline(m_streams.getInputStream(), line))
 	{
-		if (line[0] == '@' && line.find("@ERR") != std::string::npos)
+		if (line[0] == '@' && (line.substr(0,4) != "@SRR" || line.substr(0, 4) != "@ERR"))
 			++m_count;
 	}
 	m_streams.getInputStream().clear();
@@ -106,7 +106,7 @@ bool Parallel::createFiles()
 
 	while (std::getline(m_streams.getInputStream(), line))
 	{
-		if (line[0] == '@' && line.find("@ERR") != std::string::npos)
+		if (line[0] == '@' && (line.substr(0, 4) != "@SRR" || line.substr(0, 4) != "@ERR"))
 		{
 			if (current % m_repEvery == 0 && m_index < m_numberOfFilesToOutput)
 			{
