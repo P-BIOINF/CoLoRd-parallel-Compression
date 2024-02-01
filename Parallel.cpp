@@ -81,10 +81,12 @@ Status Parallel::parseArguments(const int argc, char** argv)
 		return getStatus();
 	}
 
+	m_status = Status::ready;
+
 	return getStatus();
 }
 
-int Parallel::calculateCount()
+void Parallel::calculateCount()
 {
 	std::string line{};
 	while (std::getline(m_streams.getInputStream(), line))
@@ -95,7 +97,6 @@ int Parallel::calculateCount()
 	m_streams.getInputStream().clear();
 	m_streams.getInputStream().seekg(std::ios_base::beg);
 	m_repEvery = m_count / m_numberOfFilesToOutput;
-	return m_count;
 }
 
 bool Parallel::createFiles()
@@ -129,7 +130,7 @@ bool Parallel::createFiles()
 	return true;
 }
 
-std::size_t Parallel::calculateFileSizes()
+void Parallel::calculateFileSizes()
 {
 	for (const auto& path : m_directories)
 	{
@@ -143,7 +144,7 @@ std::size_t Parallel::calculateFileSizes()
 		printf("\n");
 	}
 
-	const std::size_t originalSizeWithoutCompression{ std::filesystem::file_size(m_input) };
+	m_originalSizeWithoutCompression = std::filesystem::file_size(m_input);
 	//const std::size_t originalSizeWithoutCompression{ std::filesystem::file_size(std::filesystem::current_path().append(input).string()) };
 	const std::string tempOutput{ m_input.substr(0, m_input.find_last_of('.')).append("c.fastqcomp") };
 	std::string temp{ " " +m_path };
@@ -163,7 +164,6 @@ std::size_t Parallel::calculateFileSizes()
 		std::cout << tempStream.view();
 	}
 	m_avgRatio /= m_index;
-	return originalSizeWithoutCompression;
 }
 
 void Parallel::averageRatio()
@@ -176,22 +176,20 @@ void Parallel::averageRatio()
 	}
 }
 
-long double Parallel::printFileSizes(const std::size_t& originalSizeWithoutCompression)
+void Parallel::printFileSizes()
 {
-	const long double ratio{ originalSizeWithoutCompression / static_cast<long double>(m_originalSizeWithCompression) };
+	const long double ratio{ m_originalSizeWithoutCompression / static_cast<long double>(m_originalSizeWithCompression) };
 	std::stringstream sStream{};
-	sStream << std::setprecision(3) << std::fixed << "Size of the original file w/o compression: " << originalSizeWithoutCompression / static_cast<long double>(1024)
+	sStream << std::setprecision(3) << std::fixed << "Size of the original file w/o compression: " << m_originalSizeWithoutCompression / static_cast<long double>(1024)
 		<< "kbs\tw/ compression: " << m_originalSizeWithCompression / static_cast<long double>(1024) << "kbs\tcompression ratio: " << ratio << "\n\n";
 	std::cout << sStream.view();
 	m_streams.getLogsStream() << sStream.view();
-
-	return ratio;
 }
 
-void Parallel::totalSequences(auto& ratio)
+void Parallel::totalSequences()
 {
 	std::stringstream sStream{};
-	sStream << std::setprecision(3) << std::fixed << "Total sequences: " << m_count << "\tDelta: " << ratio - m_avgRatio << "\n";
+	sStream << std::setprecision(3) << std::fixed << "Total sequences: " << m_count << "\tDelta: " << m_ratio - m_avgRatio << "\n";
 	std::cout << sStream.view();
 	m_streams.getLogsStream() << sStream.view();
 }

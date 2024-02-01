@@ -34,23 +34,25 @@ private:
 	std::size_t m_index{ 0 };
 	std::vector<std::size_t> m_sizesWithoutCompression{};
 	std::vector<std::size_t> m_sizesWithCompression{};
+	std::size_t m_originalSizeWithoutCompression{};
+	int m_ratio{1};
 
 public:
 	Parallel() = default;
 
 	Status parseArguments(const int argc, char** argv);
 
-	int calculateCount();
+	void calculateCount();
 
 	bool createFiles();
 
-	std::size_t calculateFileSizes();
+	void calculateFileSizes();
 
 	void averageRatio();
 
-	long double printFileSizes(const std::size_t& originalSizeWithoutCompression);
+	void printFileSizes();
 
-	void totalSequences(auto& ratio);
+	void totalSequences();
 
 	[[nodiscard]] Status getStatus() const
 	{
