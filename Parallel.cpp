@@ -157,8 +157,8 @@ void Parallel::compress()
 		const auto ratio{ m_sizesWithoutCompression[i] / static_cast<long double> (m_sizesWithCompression[i]) };
 		m_avgRatio += ratio;
 		std::stringstream tempStream{};
-		tempStream << std::setprecision(3) << std::fixed << "Size of file #" << i + 1 << ":\nw/o compression: " << m_sizesWithoutCompression[i] / static_cast<long double>(1024)
-			<< "kbs\tw/ compression: " << m_sizesWithCompression[i] / static_cast<long double>(1024) << "kbs\tcompression ratio: " << ratio << "\trun time: " << m_times[i]<< '\n';
+		tempStream << std::setprecision(3) << std::fixed << "Size of file #" << i + 1 << ":\nw/o compression: " << m_sizesWithoutCompression[i] 
+			<< " b\tw/ compression: " << m_sizesWithCompression[i]  << " b\tcompression ratio: " << ratio << "\trun time: " << m_times[i]<< '\n';
 		m_streams.getLogsStream() << tempStream.view();
 		std::cout << tempStream.view();
 	}
@@ -177,8 +177,12 @@ void Parallel::printFileSizes()
 {
 	const long double ratio{ m_originalSizeWithoutCompression / static_cast<long double>(m_originalSizeWithCompression) };
 	std::stringstream sStream{};
-	sStream << std::setprecision(3) << std::fixed << "Size of the original file w/o compression: " << m_originalSizeWithoutCompression / static_cast<long double>(1024)
-		<< "kbs\tw/ compression: " << m_originalSizeWithCompression / static_cast<long double>(1024) << "kbs\tcompression ratio: " << ratio << "\trun time: " << m_originalCompressionTime << "\n\n";
+	std::size_t totalSize{0};
+	for (const auto element : m_sizesWithCompression)
+		totalSize += element;
+
+	sStream << std::setprecision(3) << std::fixed << "Size of the original file w/o compression: " << m_originalSizeWithoutCompression 
+		<< " b\tw/ compression: " << m_originalSizeWithCompression<< " \tw/ compression & divided: " << totalSize <<" b\tcompression ratio: " << ratio << "\trun time: " << m_originalCompressionTime << "\n\n";
 	std::cout << sStream.view();
 	m_streams.getLogsStream() << sStream.view();
 }
