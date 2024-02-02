@@ -1,13 +1,14 @@
 #include <iostream>
 #include <filesystem>
 #include "Parallel.h"
-
+#include "Timer.h"
 
 
 int main(const int argc, char** argv)
 {
 	std::ios_base::sync_with_stdio(false);
 
+	Timer timer{};
 	Parallel parallel{};
 
 	if(parallel.parseArguments(argc, argv) != Status::ready)
@@ -20,9 +21,10 @@ int main(const int argc, char** argv)
 	}
 
 	parallel.getInputStream().open(parallel.getInput());
-	parallel.getOutputStream().open(std::filesystem::current_path().append("/logs/logs.txt"));
+	std::filesystem::create_directory("logs");
+	parallel.getLogsStream().open("logs/logs.txt");
 
-	if(!parallel.getInputStream().good() && !parallel.getOutputStream().good())
+	if(!parallel.getInputStream().good() || !parallel.getLogsStream().good())
 	{
 		std::cerr << "Something went wrong! Please make sure that you have included:\n"
 			"-o <output directory> -i <input directory> -a <colord directory> -m {colord mode} -c {count}\n";

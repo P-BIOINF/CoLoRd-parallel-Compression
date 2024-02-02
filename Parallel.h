@@ -36,6 +36,8 @@ private:
 	std::vector<std::size_t> m_sizesWithCompression{};
 	std::size_t m_originalSizeWithoutCompression{};
 	int m_ratio{1};
+	std::vector<double> m_times{};
+	double m_originalCompressionTime{};
 
 public:
 	Parallel() = default;

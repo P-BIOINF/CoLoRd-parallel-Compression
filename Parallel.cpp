@@ -1,9 +1,9 @@
 ﻿#include "Parallel.h"
+#include "Timer.h"
 #include <iostream>
 #include <string>
 #include <fstream>
 #include <filesystem>
-
 
 
 Status Parallel::parseArguments(const int argc, char** argv)
@@ -103,7 +103,7 @@ bool Parallel::createFiles()
 {
 	std::string line{};
 	std::size_t current{ 0 };
-
+	std::filesystem::create_directory(m_output);
 	while (std::getline(m_streams.getInputStream(), line))
 	{
 		if (line[0] == '@' && (line.substr(0, 4) != "@SRR" || line.substr(0, 4) != "@ERR"))
@@ -114,10 +114,7 @@ bool Parallel::createFiles()
 				auto tempString{ m_output };
 				m_streams.getOutputStream().open(tempString.insert(m_output.length(), std::to_string(++m_index)).append(".fastq"));
 				if (!m_streams.getOutputStream())
-				{
-					
 					return false;
-				}
 				m_directories.emplace_back(std::filesystem::current_path().append(tempString).string());
 			}
 			++current;
@@ -136,8 +133,9 @@ void Parallel::compress()
 		std::string tempOutput{ path.substr(0, path.find_last_of('.')).append("c.fastqcomp") };
 		std::string temp{ " " + m_path };
 		temp.append(m_mode).append(m_arguments).append(path).append(" " + tempOutput);
-
+		Timer timer{};
 		std::system(temp.data());
+		m_times.emplace_back(timer.elapsed());
 		m_sizesWithCompression.emplace_back(file_size(std::filesystem::path(tempOutput)));
 		std::cout << "\n";
 
@@ -148,7 +146,9 @@ void Parallel::compress()
 	const std::string tempOutput{ m_input.substr(0, m_input.find_last_of('.')).append("c.fastqcomp") };
 	std::string temp{ " " +m_path };
 	temp.append(m_mode).append(m_arguments).append(m_input).append(" " + tempOutput);
+	Timer timer{};
 	std::system(temp.data());
+	m_originalCompressionTime = timer.elapsed();
 
 	m_originalSizeWithCompression = file_size(std::filesystem::path(tempOutput));
 	std::cout<< "\n";
@@ -158,7 +158,7 @@ void Parallel::compress()
 		m_avgRatio += ratio;
 		std::stringstream tempStream{};
 		tempStream << std::setprecision(3) << std::fixed << "Size of file #" << i + 1 << ":\nw/o compression: " << m_sizesWithoutCompression[i] / static_cast<long double>(1024)
-			<< "kbs\tw/ compression: " << m_sizesWithCompression[i] / static_cast<long double>(1024) << "kbs\tcompression ratio: " << ratio << '\n';
+			<< "kbs\tw/ compression: " << m_sizesWithCompression[i] / static_cast<long double>(1024) << "kbs\tcompression ratio: " << ratio << "\trun time: " << m_times[i]<< '\n';
 		m_streams.getLogsStream() << tempStream.view();
 		std::cout << tempStream.view();
 	}
@@ -178,7 +178,7 @@ void Parallel::printFileSizes()
 	const long double ratio{ m_originalSizeWithoutCompression / static_cast<long double>(m_originalSizeWithCompression) };
 	std::stringstream sStream{};
 	sStream << std::setprecision(3) << std::fixed << "Size of the original file w/o compression: " << m_originalSizeWithoutCompression / static_cast<long double>(1024)
-		<< "kbs\tw/ compression: " << m_originalSizeWithCompression / static_cast<long double>(1024) << "kbs\tcompression ratio: " << ratio << "\n\n";
+		<< "kbs\tw/ compression: " << m_originalSizeWithCompression / static_cast<long double>(1024) << "kbs\tcompression ratio: " << ratio << "\trun time: " << m_originalCompressionTime << "\n\n";
 	std::cout << sStream.view();
 	m_streams.getLogsStream() << sStream.view();
 }
@@ -186,7 +186,11 @@ void Parallel::printFileSizes()
 void Parallel::totalSequences()
 {
 	std::stringstream sStream{};
-	sStream << std::setprecision(3) << std::fixed << "Total sequences: " << m_count << "\tDelta: " << m_ratio - m_avgRatio << "\n";
+	double tempTime{};
+	for (const auto element : m_times)
+		tempTime += element;
+
+	sStream << std::setprecision(3) << std::fixed << "Total sequences: " << m_count << "\tCompression size delta: " << m_ratio - m_avgRatio << "\tCompression time delta: "<< (m_originalCompressionTime - tempTime) <<"\n";
 	std::cout << sStream.view();
 	m_streams.getLogsStream() << sStream.view();
 }

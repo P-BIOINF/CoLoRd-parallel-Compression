@@ -138,6 +138,7 @@
     <None Include="test.fastq" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Timer.h" />
     <ClInclude Include="Parallel.h" />
     <ClInclude Include="Streams.h" />
   </ItemGroup>
