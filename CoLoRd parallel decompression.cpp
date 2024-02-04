@@ -21,8 +21,10 @@ int main(const int argc, char** argv)
 	}
 
 	parallel.getInputStream().open(parallel.getInput());
-	std::filesystem::create_directory("logs");
-	parallel.getLogsStream().open("logs/logs.txt");
+	std::filesystem::create_directory(parallel.getOutput());
+	std::filesystem::path tempPath{parallel.getOutput()};
+	tempPath /= "logs.txt";
+	parallel.getLogsStream().open(tempPath);
 
 	if(!parallel.getInputStream().good() || !parallel.getLogsStream().good())
 	{

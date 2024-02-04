@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include "Streams.h"
+#include <filesystem>
 
 enum class Status
 {
@@ -18,26 +19,28 @@ enum class Status
 class Parallel
 {
 private:
-	std::string m_path{};
+	std::filesystem::path m_path{};
 	std::string m_mode{};
 	std::string m_arguments{};
-	std::string m_input{};
-	std::string m_output{};
+	std::filesystem::path m_input{};
+	std::filesystem::path m_output{};
 	std::uint32_t m_numberOfFilesToOutput{};
 	Status m_status{ Status::not_ready };
 	Streams m_streams{};
 	int m_count{ 0 };
 	int m_repEvery{ 0 };
-	std::vector<std::string> m_directories{};
+	//std::vector<std::string> m_directories{};
+	std::vector<std::filesystem::path> m_directories{};
 	long double m_avgRatio{};
 	std::size_t m_originalSizeWithCompression{};
 	std::size_t m_index{ 0 };
 	std::vector<std::size_t> m_sizesWithoutCompression{};
 	std::vector<std::size_t> m_sizesWithCompression{};
 	std::size_t m_originalSizeWithoutCompression{};
-	int m_ratio{1};
+	long double m_ratio{1};
 	std::vector<double> m_times{};
 	double m_originalCompressionTime{};
+	std::filesystem::path m_extension{};
 
 public:
 	Parallel() = default;
@@ -100,7 +103,7 @@ public:
 	 * \brief returns path to the colord.exe
 	 * \return m_path
 	 */
-	[[nodiscard]] std::string_view getPath() const
+	[[nodiscard]] const std::filesystem::path& getPath() const
 	{
 		return m_path;
 	}
@@ -166,7 +169,7 @@ public:
 	 * \brief returns the path to the input file
 	 * \return m_input
 	 */
-	[[nodiscard]] const std::string& getInput() const
+	[[nodiscard]] const std::filesystem::path& getInput() const
 	{
 		return m_input;
 	}
@@ -175,7 +178,7 @@ public:
 	 * \brief returns the output path
 	 * \return m_output
 	 */
-	[[nodiscard]] const std::string& getOutput() const
+	[[nodiscard]] const std::filesystem::path& getOutput() const
 	{
 		return m_output;
 	}
