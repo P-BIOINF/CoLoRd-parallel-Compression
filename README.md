@@ -2,7 +2,7 @@
 
 -i \<input directory\> Directory of the input file.
 
--c \<amount of files to divide between\> 
+--count \<amount of files to divide between\> 
 
 -a \<colord directory\> Directory to the colord executable.
 
