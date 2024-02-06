@@ -4,7 +4,7 @@
 
 --count \<amount of files to divide between\> 
 
--a \<colord directory\> Directory to the colord executable.
+--colord \<colord directory\> Directory to the colord executable.
 
 -m \<compress method\> Colord compress method.
 
