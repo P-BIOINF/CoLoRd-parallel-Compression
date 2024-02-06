@@ -1,6 +1,6 @@
 -o \<output directory\\name of output files\> Directory to store divided & compressed files.
 
--i \<input directory\> Directory of the input file.
+--inpit \<input directory\> Directory of the input file.
 
 --count \<amount of files to divide between\> 
 
