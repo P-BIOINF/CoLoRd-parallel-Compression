@@ -27,9 +27,8 @@ private:
 	std::uint32_t m_numberOfFilesToOutput{};
 	Status m_status{ Status::not_ready };
 	Streams m_streams{};
-	int m_count{ 0 };
-	int m_repEvery{ 0 };
-	//std::vector<std::string> m_directories{};
+	std::size_t m_count{ 0 };
+	std::size_t m_repEvery{ 0 };
 	std::vector<std::filesystem::path> m_directories{};
 	long double m_avgRatio{};
 	std::size_t m_index{ 0 };
@@ -158,7 +157,7 @@ public:
 	 * \brief returns the number of sequences per divided file
 	 * \return m_repEvery
 	 */
-	[[nodiscard]] int getRepEvery() const
+	[[nodiscard]] std::size_t getRepEvery() const
 	{
 		return m_repEvery;
 	}

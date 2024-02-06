@@ -68,43 +68,57 @@ Status Parallel::parseArguments(const int argc, char** argv)
 
 void Parallel::calculateCount()
 {
-	std::string line{};
-	while (std::getline(m_streams.getInputStream(), line))
-		if (line.substr(0,4) == "@SRR" || line.substr(0, 4) == "@ERR")
-			++m_count;
+	std::string identifier{};
+	std::string sequence{};
+	std::string signAndIdentifier{};
+	std::string qualityScores{};
+
+	while(std::getline(getInputStream(), identifier))
+	{
+		std::getline(getInputStream(), sequence);
+		std::getline(getInputStream(), signAndIdentifier);
+		std::getline(getInputStream(), qualityScores);
+		++m_count;
+
+	}
 	
-	m_streams.getInputStream().clear();
-	m_streams.getInputStream().seekg(std::ios_base::beg);
+	getInputStream().clear();
+	getInputStream().seekg(std::ios_base::beg);
 	m_repEvery = m_count / m_numberOfFilesToOutput;
 }
 
 bool Parallel::createFiles()
 {
-	std::string line{};
+	std::string identifier{};
+	std::string sequence{};
+	std::string signAndIdentifier{};
+	std::string qualityScores{};
+
 	std::size_t current{ 0 };
+	std::size_t index{};
 	std::filesystem::create_directory(m_output);
 
-	while (std::getline(m_streams.getInputStream(), line))
+	while(std::getline(getInputStream(),identifier))
 	{
-		if (line.substr(0, 4) == "@SRR" || line.substr(0, 4) == "@ERR")
+		std::getline(getInputStream(), sequence);
+		std::getline(getInputStream(), signAndIdentifier);
+		std::getline(getInputStream(), qualityScores);
+
+		if(current++ % m_repEvery == 0 && index < m_numberOfFilesToOutput)
 		{
-			if (current % m_repEvery == 0 && m_index < m_numberOfFilesToOutput)
-			{
-				m_streams.getOutputStream().close();
-				std::filesystem::path tempPath{ m_output };
-				//std::filesystem::path tempPath{ m_output };
-				//m_streams.getOutputStream().open(tempPath.insert(m_output.length(), std::to_string(++m_index)).append(".fastq"));
-				m_streams.getOutputStream().open(tempPath.append(std::to_string(++m_index) + m_extension.string()));
-				if (!m_streams.getOutputStream())
-					return false;
-				//m_directories.emplace_back(std::filesystem::current_path().append(tempPath).string());
-				m_directories.emplace_back(tempPath);
-			}
-			++current;
+			getOutputStream().close();
+			std::filesystem::path tempPath{ m_output };
+			getOutputStream().open(tempPath.append(std::to_string(++index) + m_extension.string()));
+
+			if (!getOutputStream())
+				return false;
+			m_directories.emplace_back(tempPath);
 		}
-		m_streams.getOutputStream() << line << '\n';
+
+		getOutputStream() << identifier << '\n' << sequence<< '\n' << signAndIdentifier<< '\n' << qualityScores <<'\n';
 	}
-	m_streams.getOutputStream().flush();
+
+	getOutputStream().flush();
 	return true;
 }
 
@@ -112,16 +126,6 @@ void Parallel::compress()
 {
 	for (const auto& path : m_directories)
 	{
-		/*m_sizesWithoutCompression.emplace_back(file_size(std::filesystem::path(path)));
-		std::string tempOutput{ path.substr(0, path.find_last_of('.')).append("c.fastqcomp") };
-		std::string temp{ " " + m_path };
-		temp.append(m_mode).append(m_arguments).append(path).append(" " + tempOutput);
-		Timer timer{};
-		std::system(temp.data());
-		m_times.emplace_back(timer.elapsed());
-		m_sizesWithCompression.emplace_back(file_size(std::filesystem::path(tempOutput)));
-		std::cout << "\n";*/
-
 		m_sizesWithoutCompression.emplace_back(std::filesystem::file_size(path));
 		std::filesystem::path tempPath{path};
 		tempPath.replace_extension(m_extension.string() + "colord");
@@ -133,38 +137,27 @@ void Parallel::compress()
 		std::cout << '\n';
 	}
 
-	//m_originalSizeWithoutCompression = std::filesystem::file_size(m_input);
-	////const std::size_t originalSizeWithoutCompression{ std::filesystem::file_size(std::filesystem::current_path().append(input).string()) };
-	//const std::string tempOutput{ m_input.substr(0, m_input.find_last_of('.')).append("c.fastqcomp") };
-	//std::string temp{ " " +m_path };
-	//temp.append(m_mode).append(m_arguments).append(m_input).append(" " + tempOutput);
-	//Timer timer{};
-	//std::system(temp.data());
-	//m_originalCompressionTime = timer.elapsed();
-
-	//m_originalSizeWithCompression = file_size(std::filesystem::path(tempOutput));
-
 	m_originalSizeWithoutCompression = std::filesystem::file_size(m_input);
 
 	std::cout<< '\n';
-	for (std::size_t i{ 0 }; i < m_index; ++i)
+	for (std::size_t i{ 0 }; i < m_directories.size(); ++i)
 	{
 		const auto ratio{ m_sizesWithoutCompression[i] / static_cast<long double> (m_sizesWithCompression[i]) };
 		m_avgRatio += ratio;
 		std::stringstream tempStream{};
 		tempStream << std::setprecision(3) << std::fixed << "Size of file #" << i + 1 << ":\nw/o compression: " << m_sizesWithoutCompression[i] 
 			<< "\tw/ compression: " << m_sizesWithCompression[i]  << "\tcompression ratio: " << ratio << "\trun time: " << m_times[i]<< '\n';
-		m_streams.getLogsStream() << tempStream.view();
+		getLogsStream() << tempStream.view();
 		std::cout << tempStream.view();
 	}
-	m_avgRatio /= m_index;
+	m_avgRatio /= m_directories.size();
 }
 
 void Parallel::printAvgRatio()
 {
 	std::stringstream sStream{};
 	sStream << std::setprecision(3) << std::fixed << "\nAverage compression ratio:\t\t\t\t" << m_avgRatio << '\n';
-	m_streams.getLogsStream() << sStream.view();
+	getLogsStream() << sStream.view();
 	std::cout << sStream.view();
 }
 
@@ -177,7 +170,7 @@ void Parallel::printFileSizes()
 
 	sStream << std::setprecision(3) << std::fixed << "\nSize of the input file:\nw/o Compression:\t\t\t\t\t" << m_originalSizeWithoutCompression;
 	std::cout << sStream.view();
-	m_streams.getLogsStream() << sStream.view();
+	getLogsStream() << sStream.view();
 }
 
 void Parallel::totalSequences()
@@ -189,5 +182,5 @@ void Parallel::totalSequences()
 
 	sStream << std::setprecision(3) << std::fixed << "Total sequences:\t\t\t\t\t" << m_count << "\nCompression ratio delta:\t\t\t\t" << m_avgRatio - m_ratio << "\nCompression time:\t\t\t\t\t"<< tempTime <<"\n";
 	std::cout << sStream.view();
-	m_streams.getLogsStream() << sStream.view();
+	getLogsStream() << sStream.view();
 }
