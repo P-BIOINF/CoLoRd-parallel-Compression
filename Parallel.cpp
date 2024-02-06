@@ -4,13 +4,15 @@
 #include <string>
 #include <fstream>
 #include <filesystem>
-
+#include <unordered_set>
 
 Status Parallel::parseArguments(const int argc, char** argv)
 {
+	std::unordered_set<std::string> setOfTwoParams{ "-k", "--kmer - len", "-t", "--threads", "-p", "--priority", "-q", "--qual", "-T","--qual-thresholds", "-D", "--qual-values", "-i", "--identifier", "-R", "--Ref-reads-mod" };
+	std::unordered_set<std::string> setOfOneParam{ "-G", "--reference-genome", "-s", "--store-reference","-v","--verbose", "-a", "--anchor-len", "-L", "--Lowest-count", "-H", "--Highest-count", "-f", "--filter-modulo", "---max-candidates", "-c", "-e", "--edit-script-mult", "-r", "--max-recurence-level", "--min-to-alt", "--min-mmer-frac", "--min-mmer-force-enc", "--max-matches-mult", "--fill-factor-filtered-kmers", "--fill-factor-kmers-to-reads", "--min-anchors", "-x", "--sparse-exponent", "-g", "--sparse-range", "-h", "--help" };
 	for (int i{ 0 }; i < argc - 1; ++i)
 	{
-		if (std::string param{ argv[i] }; param == "-i")
+		if (std::string param{ argv[i] }; param == "--input")
 		{
 			m_input = argv[++i];
 			m_extension = std::filesystem::path(m_input).extension();
@@ -20,7 +22,7 @@ Status Parallel::parseArguments(const int argc, char** argv)
 			m_output = argv[++i];
 			m_output.remove_filename();
 		}
-		else if (param == "-c")
+		else if (param == "--count")
 		{
 			try
 			{
@@ -33,7 +35,7 @@ Status Parallel::parseArguments(const int argc, char** argv)
 				return getStatus();
 			}
 		}
-		else if (param == "-a")
+		else if (param == "--colord")
 		{
 			m_path = argv[++i];
 		}
@@ -41,46 +43,18 @@ Status Parallel::parseArguments(const int argc, char** argv)
 		{
 			m_mode.append(" ").append(argv[++i]);
 		}
-		else if (param == "-k" || param == "--kmer - len")
+		else if (setOfTwoParams.find(param) != setOfTwoParams.end())
 		{
-			m_arguments.append(" -k ").append(argv[++i]);
+			m_arguments.append(" " + param + " ").append(argv[++i]);
 		}
-		else if (param == "-t" || param == "--threads")
+		else if (setOfOneParam.find(param) != setOfOneParam.end())
 		{
-			m_arguments.append(" -t ").append(argv[++i]);
-		}
-		else if (param == "-p" || param == "--priority")
-		{
-			m_arguments.append(" -p ").append(argv[++i]);
-		}
-		else if (param == "-q" || param == "--qual")
-		{
-			m_arguments.append(" -q ").append(argv[++i]);
-		}
-		else if (param == "-T" || param == "--qual-thresholds")
-		{
-			m_arguments.append(" -T ").append(argv[++i]);
-		}
-		else if (param == "-D" || param == "--qual-values")
-		{
-			m_arguments.append(" -D ").append(argv[++i]);
-		}
-		else if (param == "-G" || param == "--reference-genome")
-		{
-			m_arguments.append(" -G");
-		}
-		else if (param == "-s" || param == "--store-reference")
-		{
-			m_arguments.append(" -s ");
-		}
-		else if (param == "-v" || param == "--verbose")
-		{
-			m_arguments.append(" -v ");
+			m_arguments.append(" " + param);
 		}
 	}
 	m_arguments.append(" ");
 
-	if(m_path.empty() && m_mode.empty())
+	if (m_path.empty() && m_mode.empty())
 	{
 		m_status = Status::not_ready;
 
