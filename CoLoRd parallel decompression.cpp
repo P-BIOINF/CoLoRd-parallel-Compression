@@ -15,21 +15,15 @@ int main(const int argc, char** argv)
 	{
 		std::cerr << "Status code: "<< static_cast<int>(parallel.getStatus()) << '\n';
 		std::cerr << "Something went wrong! Please make sure that you have included:\n"
-			"-o <output directory> -i <input directory> -a <colord directory> -m {colord mode} -c {count}\n";
+			"--output <output directory> --input <input directory> --colord <colord directory> -m {colord mode} -c {count}\n";
 
 		return -1;
 	}
 
-	parallel.getInputStream().open(parallel.getInput());
-	std::filesystem::create_directory(parallel.getOutput());
-	std::filesystem::path tempPath{parallel.getOutput()};
-	tempPath /= "logs.txt";
-	parallel.getLogsStream().open(tempPath);
-
 	if(!parallel.getInputStream().good() || !parallel.getLogsStream().good())
 	{
 		std::cerr << "Something went wrong! Please make sure that you have included:\n"
-			"-o <output directory> -i <input directory> -a <colord directory> -m {colord mode} -c {count}\n";
+			"--output <output directory> --input <input directory> --colord <colord directory> -m {colord mode} -c {count}\n";
 
 		return -2;
 	}
@@ -38,7 +32,7 @@ int main(const int argc, char** argv)
 	if (!parallel.createFiles())
 	{
 		std::cerr << "Something went wrong! Please make sure that you have included:\n"
-			"-o <output directory> -i <input directory> -a <colord directory> -m {colord mode} -c {count}\n";
+			"--output <output directory> --input <input directory> --colord <colord directory> -m {colord mode} -c {count}\n";
 
 		return -3;
 	}

@@ -8,16 +8,16 @@
 
 Status Parallel::parseArguments(const int argc, char** argv)
 {
-	std::unordered_set<std::string> setOfTwoParams{ "-k", "--kmer - len", "-t", "--threads", "-p", "--priority", "-q", "--qual", "-T","--qual-thresholds", "-D", "--qual-values", "-i", "--identifier", "-R", "--Ref-reads-mod" };
-	std::unordered_set<std::string> setOfOneParam{ "-G", "--reference-genome", "-s", "--store-reference","-v","--verbose", "-a", "--anchor-len", "-L", "--Lowest-count", "-H", "--Highest-count", "-f", "--filter-modulo", "---max-candidates", "-c", "-e", "--edit-script-mult", "-r", "--max-recurence-level", "--min-to-alt", "--min-mmer-frac", "--min-mmer-force-enc", "--max-matches-mult", "--fill-factor-filtered-kmers", "--fill-factor-kmers-to-reads", "--min-anchors", "-x", "--sparse-exponent", "-g", "--sparse-range", "-h", "--help" };
-	for (int i{ 0 }; i < argc - 1; ++i)
+	const std::unordered_set<std::string> setOfTwoParams{ "-k", "--kmer - len", "-t", "--threads", "-p", "--priority", "-q", "--qual", "-T","--qual-thresholds", "-D", "--qual-values", "-i", "--identifier", "-R", "--Ref-reads-mod" };
+	const std::unordered_set<std::string> setOfOneParam{ "-G", "--reference-genome", "-s", "--store-reference","-v","--verbose", "-a", "--anchor-len", "-L", "--Lowest-count", "-H", "--Highest-count", "-f", "--filter-modulo", "---max-candidates", "-c", "-e", "--edit-script-mult", "-r", "--max-recurence-level", "--min-to-alt", "--min-mmer-frac", "--min-mmer-force-enc", "--max-matches-mult", "--fill-factor-filtered-kmers", "--fill-factor-kmers-to-reads", "--min-anchors", "-x", "--sparse-exponent", "-g", "--sparse-range", "-h", "--help" };
+	for (int i{ 0 }; i < argc; ++i)
 	{
 		if (std::string param{ argv[i] }; param == "--input")
 		{
 			m_input = argv[++i];
 			m_extension = std::filesystem::path(m_input).extension();
 		}
-		else if (param == "-o")
+		else if (param == "--output")
 		{
 			m_output = argv[++i];
 			m_output.remove_filename();
@@ -43,21 +43,42 @@ Status Parallel::parseArguments(const int argc, char** argv)
 		{
 			m_mode.append(" ").append(argv[++i]);
 		}
-		else if (setOfTwoParams.find(param) != setOfTwoParams.end())
+		else if (setOfTwoParams.contains(param))
 		{
 			m_arguments.append(" " + param + " ").append(argv[++i]);
 		}
-		else if (setOfOneParam.find(param) != setOfOneParam.end())
+		else if (setOfOneParam.contains(param))
 		{
 			m_arguments.append(" " + param);
 		}
 	}
 	m_arguments.append(" ");
 
-	if (m_path.empty() && m_mode.empty())
+	if (m_path.empty() && m_mode.empty() && m_count == 0)
 	{
 		m_status = Status::not_ready;
 
+		return getStatus();
+	}
+
+	getInputStream().open(getInput());
+
+	std::filesystem::create_directory(getOutput());
+	if(!getInputStream())
+	{
+		m_status = Status::failed;
+
+		return getStatus();
+	}
+
+	std::filesystem::path tempPath{ getOutput() };
+	tempPath /= "logs.txt";
+
+	getLogsStream().open(tempPath);
+
+	if(!getLogsStream().good())
+	{
+		m_status = Status::failed;
 		return getStatus();
 	}
 
@@ -170,7 +191,7 @@ void Parallel::printFileSizes()
 
 	sStream << std::setprecision(3) << std::fixed << "\nSize of the input file:\nw/o Compression:\t\t\t\t\t" << m_originalSizeWithoutCompression;
 	std::cout << sStream.view();
-	getLogsStream() << sStream.view();
+	getLogsStream() << sStream.view() << '\n';
 }
 
 void Parallel::totalSequences()
