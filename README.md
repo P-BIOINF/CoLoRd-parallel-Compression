@@ -1,4 +1,4 @@
--o \<output directory\\name of output files\> Directory to store divided & compressed files.
+--output \<output directory\\name of output files\> Directory to store divided & compressed files.
 
 --inpit \<input directory\> Directory of the input file.
 
