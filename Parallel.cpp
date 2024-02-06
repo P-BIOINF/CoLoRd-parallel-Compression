@@ -67,15 +67,15 @@ Status Parallel::parseArguments(const int argc, char** argv)
 		}
 		else if (param == "-G" || param == "--reference-genome")
 		{
-			m_arguments.append(" -DG").append(argv[++i]);
+			m_arguments.append(" -G");
 		}
 		else if (param == "-s" || param == "--store-reference")
 		{
-			m_arguments.append(" -s ").append(argv[++i]);
+			m_arguments.append(" -s ");
 		}
 		else if (param == "-v" || param == "--verbose")
 		{
-			m_arguments.append(" -v ").append(argv[++i]);
+			m_arguments.append(" -v ");
 		}
 	}
 	m_arguments.append(" ");
