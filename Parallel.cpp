@@ -171,17 +171,6 @@ void Parallel::compress()
 	//m_originalSizeWithCompression = file_size(std::filesystem::path(tempOutput));
 
 	m_originalSizeWithoutCompression = std::filesystem::file_size(m_input);
-	std::filesystem::path tempPath{ m_output };
-	tempPath /= "original";
-	std::filesystem::create_directory(tempPath);
-	tempPath /= m_input.filename();
-	tempPath.replace_extension(m_extension.string() + "colord");
-	std::string temp{ " " + m_path.string() + m_mode + m_arguments + m_input.string() + " " + tempPath.string()};
-	Timer timer{};
-	std::system(temp.c_str());
-	m_originalCompressionTime = timer.elapsed();
-	m_originalSizeWithCompression = std::filesystem::file_size(tempPath);
-	m_ratio = { m_originalSizeWithoutCompression / static_cast<long double> (m_originalSizeWithCompression) };
 
 	std::cout<< '\n';
 	for (std::size_t i{ 0 }; i < m_index; ++i)
@@ -207,14 +196,12 @@ void Parallel::printAvgRatio()
 
 void Parallel::printFileSizes()
 {
-	const long double ratio{ m_originalSizeWithoutCompression / static_cast<long double>(m_originalSizeWithCompression) };
 	std::stringstream sStream{};
 	std::size_t totalSize{0};
 	for (const auto element : m_sizesWithCompression)
 		totalSize += element;
 
-	sStream << std::setprecision(3) << std::fixed << "\nSize of the input file:\nw/o Compression:\t\t\t\t\t" << m_originalSizeWithoutCompression 
-		<< "\nw/ Compression:\t\t\t\t\t\t" << m_originalSizeWithCompression<< "\nw/ Compression & divided:\t\t\t\t" << totalSize <<"\n\nCompression ratio:\t\t\t\t\t" << ratio << "\nRun time:\t\t\t\t\t\t" << m_originalCompressionTime << "\n\n";
+	sStream << std::setprecision(3) << std::fixed << "\nSize of the input file:\nw/o Compression:\t\t\t\t\t" << m_originalSizeWithoutCompression;
 	std::cout << sStream.view();
 	m_streams.getLogsStream() << sStream.view();
 }
@@ -226,7 +213,7 @@ void Parallel::totalSequences()
 	for (const auto element : m_times)
 		tempTime += element;
 
-	sStream << std::setprecision(3) << std::fixed << "Total sequences:\t\t\t\t\t" << m_count << "\nCompression ratio delta:\t\t\t\t" << m_avgRatio - m_ratio << "\nCompression time delta:\t\t\t\t\t"<< (m_originalCompressionTime - tempTime) <<"\n";
+	sStream << std::setprecision(3) << std::fixed << "Total sequences:\t\t\t\t\t" << m_count << "\nCompression ratio delta:\t\t\t\t" << m_avgRatio - m_ratio << "\nCompression time:\t\t\t\t\t"<< tempTime <<"\n";
 	std::cout << sStream.view();
 	m_streams.getLogsStream() << sStream.view();
 }

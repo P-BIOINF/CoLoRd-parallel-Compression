@@ -32,14 +32,12 @@ private:
 	//std::vector<std::string> m_directories{};
 	std::vector<std::filesystem::path> m_directories{};
 	long double m_avgRatio{};
-	std::size_t m_originalSizeWithCompression{};
 	std::size_t m_index{ 0 };
 	std::vector<std::size_t> m_sizesWithoutCompression{};
 	std::vector<std::size_t> m_sizesWithCompression{};
 	std::size_t m_originalSizeWithoutCompression{};
 	long double m_ratio{1};
 	std::vector<double> m_times{};
-	double m_originalCompressionTime{};
 	std::filesystem::path m_extension{};
 
 public:
