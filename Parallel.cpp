@@ -140,6 +140,7 @@ bool Parallel::createFiles()
 	}
 
 	getOutputStream().flush();
+
 	return true;
 }
 
@@ -150,9 +151,9 @@ void Parallel::compress()
 		m_sizesWithoutCompression.emplace_back(std::filesystem::file_size(path));
 		std::filesystem::path tempPath{path};
 		tempPath.replace_extension(m_extension.string() + "colord");
-		std::string temp{" " + m_path.string() + m_mode + m_arguments + path.string() + " " + tempPath.string()};
+		std::string temp{ g_winTime + " -- " + m_path.string() + m_mode + m_arguments + path.string() + " " + tempPath.string() };
 		Timer timer{};
-		std::system(temp.c_str());
+		std::system( temp.c_str());
 		m_times.emplace_back(timer.elapsed());
 		m_sizesWithCompression.emplace_back(std::filesystem::file_size(tempPath));
 		std::cout << '\n';

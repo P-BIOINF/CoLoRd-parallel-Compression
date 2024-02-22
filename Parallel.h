@@ -7,6 +7,8 @@
 #include "Streams.h"
 #include <filesystem>
 
+const std::string g_winTime{ "C:\\Users\\kacpe\\Desktop\\WinTime64.exe " };
+
 enum class Status
 {
 	ready,
