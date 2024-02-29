@@ -162,21 +162,43 @@ void Parallel::calculateCount()
 bool Parallel::createFiles()
 {
 	
-	std::vector<std::ifstream> openOutputStreams{};
+	std::vector<std::ofstream> openOutputStreams{};
+
+	//m_maxNumberOfFilesToOutput = max liczba plikow
+	//m_count = liczba sekwencji w pliku wejsciowym
+	//m_test = liczba sekwencji co ile ma sie zmieniac plik
+	std::filesystem::create_directory(m_output);
+	for (int index{ 0 }; index < m_maxNumberOfFilesToOutput && m_count - (index + 1) * m_test > m_test * 1.5; ++index)
+	{
+		std::filesystem::path tempPath{ m_output };
+		tempPath.append(std::to_string(index + 1) + m_extension.string());
+		openOutputStreams.emplace_back(std::ofstream{ tempPath });
+		m_directories.emplace_back(tempPath);
+	}
 
 	std::string identifier{};
 	std::string sequence{};
 	std::string signAndIdentifier{};
 	std::string qualityScores{};
 
-	while(std::getline(getInputStream(),identifier))
+	std::uint64_t currentSequence{0};
+	int currentFile{0};
+	while (std::getline(getInputStream(), identifier))
 	{
 		std::getline(getInputStream(), sequence);
 		std::getline(getInputStream(), signAndIdentifier);
 		std::getline(getInputStream(), qualityScores);
 
-	}
+		
+		openOutputStreams[currentFile] << identifier << '\n' << sequence << '\n' << signAndIdentifier << '\n' << qualityScores << '\n';
 
+
+		if (++currentSequence; currentSequence % m_test == 0 && m_count - currentSequence > m_test * 1.5)
+		{
+			openOutputStreams[currentFile].flush();
+			currentFile = currentFile >= openOutputStreams.size() ? 0 : currentFile + 1;
+		}
+	}
 
 	return true;
 }
