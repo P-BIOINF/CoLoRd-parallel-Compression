@@ -26,7 +26,7 @@ Status Parallel::parseArguments(const int argc, char** argv)
 		{
 			try
 			{
-				m_numberOfFilesToOutput = std::stoul(argv[++i]);
+				m_maxNumberOfFilesToOutput = std::stoul(argv[++i]);
 			}
 			catch (...)
 			{
@@ -38,6 +38,19 @@ Status Parallel::parseArguments(const int argc, char** argv)
 		else if (param == "--colord")
 		{
 			m_path = argv[++i];
+		}
+		else if (param == "--test")
+		{
+			try
+			{
+				m_test = std::stoul(argv[++i]);
+			}
+			catch (...)
+			{
+				m_status = Status::failed;
+
+				return getStatus();
+			}
 		}
 		else if (param == "-m")
 		{
@@ -105,42 +118,48 @@ void Parallel::calculateCount()
 	
 	getInputStream().clear();
 	getInputStream().seekg(std::ios_base::beg);
-	m_repEvery = m_count / m_numberOfFilesToOutput;
+	m_repEvery = m_count / m_maxNumberOfFilesToOutput;
 }
+
+//bool Parallel::createFiles()
+//{
+//	std::string identifier{};
+//	std::string sequence{};
+//	std::string signAndIdentifier{};
+//	std::string qualityScores{};
+//
+//	std::size_t current{ 0 };
+//	std::size_t index{};
+//	std::filesystem::create_directory(m_output);
+//
+//	while(std::getline(getInputStream(),identifier))
+//	{
+//		std::getline(getInputStream(), sequence);
+//		std::getline(getInputStream(), signAndIdentifier);
+//		std::getline(getInputStream(), qualityScores);
+//
+//		if(current++ % m_repEvery == 0 && index < m_maxNumberOfFilesToOutput)
+//		{
+//			getOutputStream().close();
+//			std::filesystem::path tempPath{ m_output };
+//			getOutputStream().open(tempPath.append(std::to_string(++index) + m_extension.string()));
+//
+//			if (!getOutputStream())
+//				return false;
+//			m_directories.emplace_back(tempPath);
+//		}
+//
+//		getOutputStream() << identifier << '\n' << sequence<< '\n' << signAndIdentifier<< '\n' << qualityScores <<'\n';
+//	}
+//
+//	getOutputStream().flush();
+//	return true;
+//}
 
 bool Parallel::createFiles()
 {
-	std::string identifier{};
-	std::string sequence{};
-	std::string signAndIdentifier{};
-	std::string qualityScores{};
+	
 
-	std::size_t current{ 0 };
-	std::size_t index{};
-	std::filesystem::create_directory(m_output);
-
-	while(std::getline(getInputStream(),identifier))
-	{
-		std::getline(getInputStream(), sequence);
-		std::getline(getInputStream(), signAndIdentifier);
-		std::getline(getInputStream(), qualityScores);
-
-		if(current++ % m_repEvery == 0 && index < m_numberOfFilesToOutput)
-		{
-			getOutputStream().close();
-			std::filesystem::path tempPath{ m_output };
-			getOutputStream().open(tempPath.append(std::to_string(++index) + m_extension.string()));
-
-			if (!getOutputStream())
-				return false;
-			m_directories.emplace_back(tempPath);
-		}
-
-		getOutputStream() << identifier << '\n' << sequence<< '\n' << signAndIdentifier<< '\n' << qualityScores <<'\n';
-	}
-
-	getOutputStream().flush();
-	return true;
 }
 
 void Parallel::compress()

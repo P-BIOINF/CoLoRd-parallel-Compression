@@ -24,7 +24,7 @@ private:
 	std::string m_arguments{};
 	std::filesystem::path m_input{};
 	std::filesystem::path m_output{};
-	std::uint32_t m_numberOfFilesToOutput{};
+	std::uint32_t m_maxNumberOfFilesToOutput{};
 	Status m_status{ Status::not_ready };
 	Streams m_streams{};
 	std::size_t m_count{ 0 };
@@ -38,6 +38,7 @@ private:
 	long double m_ratio{1};
 	std::vector<double> m_times{};
 	std::filesystem::path m_extension{};
+	std::uint64_t m_test{10};
 
 public:
 	Parallel() = default;
@@ -57,7 +58,7 @@ public:
 	void calculateCount();
 
 	/**
-	 * \brief divides the sequences into {count} files (can round one up/down)
+	 * \brief divides the sequences into max {count} files 
 	 * \return true if there was not any problem with creating the files
 	 * requires parseArguments(const int argc, char** argv), calculateCount()
 	 */
