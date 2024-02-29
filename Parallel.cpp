@@ -1,4 +1,7 @@
 ﻿#include "Parallel.h"
+
+#include <execution>
+
 #include "Timer.h"
 #include <iostream>
 #include <string>
@@ -159,7 +162,23 @@ void Parallel::calculateCount()
 bool Parallel::createFiles()
 {
 	
+	std::vector<std::ifstream> openOutputStreams{};
 
+	std::string identifier{};
+	std::string sequence{};
+	std::string signAndIdentifier{};
+	std::string qualityScores{};
+
+	while(std::getline(getInputStream(),identifier))
+	{
+		std::getline(getInputStream(), sequence);
+		std::getline(getInputStream(), signAndIdentifier);
+		std::getline(getInputStream(), qualityScores);
+
+	}
+
+
+	return true;
 }
 
 void Parallel::compress()
