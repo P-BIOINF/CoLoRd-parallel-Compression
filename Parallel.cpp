@@ -197,7 +197,7 @@ bool Parallel::createFiles()
 		{
 			openOutputStreams[currentFile].flush();
 			++currentFile;
-			if (currentFile == openOutputStreams.size())
+			if (currentFile == std::ssize(openOutputStreams))
 				currentFile = 0;
 		}
 	}
