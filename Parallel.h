@@ -24,21 +24,21 @@ private:
 	std::string m_arguments{};
 	std::filesystem::path m_input{};
 	std::filesystem::path m_output{};
-	std::uint32_t m_maxNumberOfFilesToOutput{};
+	std::int64_t m_maxNumberOfFilesToOutput{};
 	Status m_status{ Status::not_ready };
 	Streams m_streams{};
-	std::size_t m_count{ 0 };
-	std::size_t m_repEvery{ 0 };
+	std::int64_t m_count{ 0 };
+	std::int64_t m_repEvery{ 0 };
 	std::vector<std::filesystem::path> m_directories{};
 	long double m_avgRatio{};
-	std::size_t m_index{ 0 };
-	std::vector<std::size_t> m_sizesWithoutCompression{};
-	std::vector<std::size_t> m_sizesWithCompression{};
-	std::size_t m_originalSizeWithoutCompression{};
+	std::int64_t m_index{ 0 };
+	std::vector<std::int64_t> m_sizesWithoutCompression{};
+	std::vector<std::int64_t> m_sizesWithCompression{};
+	std::int64_t m_originalSizeWithoutCompression{};
 	long double m_ratio{1};
 	std::vector<double> m_times{};
 	std::filesystem::path m_extension{};
-	std::uint64_t m_test{10};
+	std::int64_t m_test{10};
 
 public:
 	Parallel() = default;
