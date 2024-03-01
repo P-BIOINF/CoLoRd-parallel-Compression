@@ -168,7 +168,7 @@ bool Parallel::createFiles()
 	//m_count = liczba sekwencji w pliku wejsciowym
 	//m_test = liczba sekwencji co ile ma sie zmieniac plik
 	std::filesystem::create_directory(m_output);
-	for (int index{ 0 }; index == 0 || (index < m_maxNumberOfFilesToOutput && m_count - (index + 1) * m_test > m_test * 1.5) ; ++index)
+	for (int index{ 0 }; index == 0 || (index < m_maxNumberOfFilesToOutput && m_count - index * m_test > m_test * 0.5) ; ++index)
 	{
 		std::filesystem::path tempPath{ m_output };
 		tempPath.append(std::to_string(index + 1) + m_extension.string());
@@ -193,7 +193,7 @@ bool Parallel::createFiles()
 		openOutputStreams[currentFile] << identifier << '\n' << sequence << '\n' << signAndIdentifier << '\n' << qualityScores << '\n';
 
 
-		if (++currentSequence; currentSequence % m_test == 0 && m_count - currentSequence > m_test * 1.5)
+		if (++currentSequence; currentSequence % m_test == 0 && m_count - currentSequence > m_test * 0.5)
 		{
 			openOutputStreams[currentFile].flush();
 			++currentFile;

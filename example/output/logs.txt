@@ -1,12 +1,10 @@
 Size of file #1:
-w/o compression: 1365432	w/ compression: 416706	compression ratio: 3.277	run time: 2.615
-Size of file #2:
-w/o compression: 931026	w/ compression: 262162	compression ratio: 3.551	run time: 2.543
+w/o compression: 2296458	w/ compression: 670018	compression ratio: 3.427	run time: 2.634
 
-Average compression ratio:				3.414
+Average compression ratio:				3.427
 
 Size of the input file:
 w/o Compression:					2296458
 Total sequences:					100
-Compression ratio delta:				2.414
-Compression time:					5.158
+Compression ratio delta:				2.427
+Compression time:					2.634
