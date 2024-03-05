@@ -1,4 +1,7 @@
 ﻿#include "Parallel.h"
+
+#include <execution>
+
 #include "Timer.h"
 #include <iostream>
 #include <string>
@@ -26,7 +29,7 @@ Status Parallel::parseArguments(const int argc, char** argv)
 		{
 			try
 			{
-				m_numberOfFilesToOutput = std::stoul(argv[++i]);
+				m_maxNumberOfFilesToOutput = std::stoul(argv[++i]);
 			}
 			catch (...)
 			{
@@ -38,6 +41,19 @@ Status Parallel::parseArguments(const int argc, char** argv)
 		else if (param == "--colord")
 		{
 			m_path = argv[++i];
+		}
+		else if (param == "--test")
+		{
+			try
+			{
+				m_test = std::stoul(argv[++i]);
+			}
+			catch (...)
+			{
+				m_status = Status::failed;
+
+				return getStatus();
+			}
 		}
 		else if (param == "-m")
 		{
@@ -105,41 +121,87 @@ void Parallel::calculateCount()
 	
 	getInputStream().clear();
 	getInputStream().seekg(std::ios_base::beg);
-	m_repEvery = m_count / m_numberOfFilesToOutput;
+	m_repEvery = m_count / m_maxNumberOfFilesToOutput;
 }
+
+//bool Parallel::createFiles()
+//{
+//	std::string identifier{};
+//	std::string sequence{};
+//	std::string signAndIdentifier{};
+//	std::string qualityScores{};
+//
+//	std::size_t current{ 0 };
+//	std::size_t index{};
+//	std::filesystem::create_directory(m_output);
+//
+//	while(std::getline(getInputStream(),identifier))
+//	{
+//		std::getline(getInputStream(), sequence);
+//		std::getline(getInputStream(), signAndIdentifier);
+//		std::getline(getInputStream(), qualityScores);
+//
+//		if(current++ % m_repEvery == 0 && index < m_maxNumberOfFilesToOutput)
+//		{
+//			getOutputStream().close();
+//			std::filesystem::path tempPath{ m_output };
+//			getOutputStream().open(tempPath.append(std::to_string(++index) + m_extension.string()));
+//
+//			if (!getOutputStream())
+//				return false;
+//			m_directories.emplace_back(tempPath);
+//		}
+//
+//		getOutputStream() << identifier << '\n' << sequence<< '\n' << signAndIdentifier<< '\n' << qualityScores <<'\n';
+//	}
+//
+//	getOutputStream().flush();
+//	return true;
+//}
 
 bool Parallel::createFiles()
 {
+	
+	std::vector<std::ofstream> openOutputStreams{};
+
+	//m_maxNumberOfFilesToOutput = max liczba plikow
+	//m_count = liczba sekwencji w pliku wejsciowym
+	//m_test = liczba sekwencji co ile ma sie zmieniac plik
+	std::filesystem::create_directory(m_output);
+	for (int index{ 0 }; index == 0 || (index < m_maxNumberOfFilesToOutput && m_count - index * m_test > m_test * 0.5) ; ++index)
+	{
+		std::filesystem::path tempPath{ m_output };
+		tempPath.append(std::to_string(index + 1) + m_extension.string());
+		openOutputStreams.emplace_back(std::ofstream{ tempPath });
+		m_directories.emplace_back(tempPath);
+	}
+
 	std::string identifier{};
 	std::string sequence{};
 	std::string signAndIdentifier{};
 	std::string qualityScores{};
 
-	std::size_t current{ 0 };
-	std::size_t index{};
-	std::filesystem::create_directory(m_output);
-
-	while(std::getline(getInputStream(),identifier))
+	std::uint64_t currentSequence{0};
+	int currentFile{0};
+	while (std::getline(getInputStream(), identifier))
 	{
 		std::getline(getInputStream(), sequence);
 		std::getline(getInputStream(), signAndIdentifier);
 		std::getline(getInputStream(), qualityScores);
 
-		if(current++ % m_repEvery == 0 && index < m_numberOfFilesToOutput)
+		
+		openOutputStreams[currentFile] << identifier << '\n' << sequence << '\n' << signAndIdentifier << '\n' << qualityScores << '\n';
+
+
+		if (++currentSequence; currentSequence % m_test == 0 && m_count - currentSequence > m_test * 0.5)
 		{
-			getOutputStream().close();
-			std::filesystem::path tempPath{ m_output };
-			getOutputStream().open(tempPath.append(std::to_string(++index) + m_extension.string()));
-
-			if (!getOutputStream())
-				return false;
-			m_directories.emplace_back(tempPath);
+			openOutputStreams[currentFile].flush();
+			++currentFile;
+			if (currentFile == std::ssize(openOutputStreams))
+				currentFile = 0;
 		}
-
-		getOutputStream() << identifier << '\n' << sequence<< '\n' << signAndIdentifier<< '\n' << qualityScores <<'\n';
 	}
 
-	getOutputStream().flush();
 	return true;
 }
 

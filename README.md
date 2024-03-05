@@ -2,7 +2,9 @@
 
 --input \<input directory\> Directory of the input file.
 
---count \<amount of files to divide between\> 
+--count \<maximum number of files to divide\>
+
+--test \<number of sequences to change file\> 
 
 --colord \<colord directory\> Directory to the colord executable.
 
