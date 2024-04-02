@@ -131,7 +131,6 @@
   <ItemGroup>
     <ClCompile Include="CoLoRd-parallel-compression.cpp" />
     <ClCompile Include="Parallel.cpp" />
-    <ClCompile Include="Streams.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Parallel.h" />
