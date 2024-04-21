@@ -69,37 +69,27 @@ Status Parallel::parseArguments(const int argc, char** argv)
 		}
 	}
 	m_arguments.append(" ");
-
 	if (m_path.empty() && m_mode.empty() && m_count == 0)
 	{
 		m_status = Status::not_ready;
-
 		return getStatus();
 	}
-
 	getInputStream().open(getInput());
-
 	std::filesystem::create_directory(getOutput());
 	if(!getInputStream())
 	{
 		m_status = Status::failed;
-
 		return getStatus();
 	}
-
 	std::filesystem::path tempPath{ getOutput() };
 	tempPath /= "logs.txt";
-
 	getLogsStream().open(tempPath);
-
 	if(!getLogsStream().good())
 	{
 		m_status = Status::failed;
 		return getStatus();
 	}
-
 	m_status = Status::ready;
-
 	return getStatus();
 }
 
@@ -109,7 +99,6 @@ void Parallel::calculateCount()
 	std::string sequence{};
 	std::string signAndIdentifier{};
 	std::string qualityScores{};
-
 	while(std::getline(getInputStream(), identifier))
 	{
 		std::getline(getInputStream(), sequence);
@@ -118,7 +107,6 @@ void Parallel::calculateCount()
 		++m_count;
 
 	}
-	
 	getInputStream().clear();
 	getInputStream().seekg(std::ios_base::beg);
 	m_repEvery = m_count / m_maxNumberOfFilesToOutput;
@@ -161,12 +149,12 @@ void Parallel::calculateCount()
 
 bool Parallel::createFiles()
 {
-	
 	std::vector<std::ofstream> openOutputStreams{};
 
 	//m_maxNumberOfFilesToOutput = max liczba plikow
 	//m_count = liczba sekwencji w pliku wejsciowym
 	//m_test = liczba sekwencji co ile ma sie zmieniac plik
+
 	std::filesystem::create_directory(m_output);
 	for (int index{ 0 }; index == 0 || (index < m_maxNumberOfFilesToOutput && m_count - index * m_test > m_test * 0.5) ; ++index)
 	{
@@ -175,12 +163,10 @@ bool Parallel::createFiles()
 		openOutputStreams.emplace_back(std::ofstream{ tempPath });
 		m_directories.emplace_back(tempPath);
 	}
-
 	std::string identifier{};
 	std::string sequence{};
 	std::string signAndIdentifier{};
 	std::string qualityScores{};
-
 	std::uint64_t currentSequence{0};
 	int currentFile{0};
 	while (std::getline(getInputStream(), identifier))
@@ -188,11 +174,7 @@ bool Parallel::createFiles()
 		std::getline(getInputStream(), sequence);
 		std::getline(getInputStream(), signAndIdentifier);
 		std::getline(getInputStream(), qualityScores);
-
-		
 		openOutputStreams[currentFile] << identifier << '\n' << sequence << '\n' << signAndIdentifier << '\n' << qualityScores << '\n';
-
-
 		if (++currentSequence; currentSequence % m_test == 0 && m_count - currentSequence > m_test * 0.5)
 		{
 			openOutputStreams[currentFile].flush();
@@ -201,7 +183,6 @@ bool Parallel::createFiles()
 				currentFile = 0;
 		}
 	}
-
 	return true;
 }
 
@@ -219,9 +200,7 @@ void Parallel::compress()
 		m_sizesWithCompression.emplace_back(std::filesystem::file_size(tempPath));
 		std::cout << '\n';
 	}
-
 	m_originalSizeWithoutCompression = std::filesystem::file_size(m_input);
-
 	std::cout<< '\n';
 	for (std::size_t i{ 0 }; i < m_directories.size(); ++i)
 	{
@@ -250,7 +229,6 @@ void Parallel::printFileSizes()
 	std::size_t totalSize{0};
 	for (const auto element : m_sizesWithCompression)
 		totalSize += element;
-
 	sStream << std::setprecision(3) << std::fixed << "\nSize of the input file:\nw/o Compression:\t\t\t\t\t" << m_originalSizeWithoutCompression;
 	std::cout << sStream.view();
 	getLogsStream() << sStream.view() << '\n';
@@ -262,7 +240,6 @@ void Parallel::totalSequences()
 	double tempTime{};
 	for (const auto element : m_times)
 		tempTime += element;
-
 	sStream << std::setprecision(3) << std::fixed << "Total sequences:\t\t\t\t\t" << m_count << "\nCompression ratio delta:\t\t\t\t" << m_avgRatio - m_ratio << "\nCompression time:\t\t\t\t\t"<< tempTime <<"\n";
 	std::cout << sStream.view();
 	getLogsStream() << sStream.view();

@@ -12,7 +12,6 @@ enum class Status
 	ready,
 	not_ready,
 	failed,
-
 	max_status,
 };
 
