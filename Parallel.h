@@ -17,7 +17,6 @@ enum class Status
 
 class Parallel
 {
-private:
 	std::filesystem::path m_path{};
 	std::string m_mode{};
 	std::string m_arguments{};

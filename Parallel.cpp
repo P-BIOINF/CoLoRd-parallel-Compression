@@ -38,10 +38,6 @@ Status Parallel::parseArguments(const int argc, char** argv)
 				return getStatus();
 			}
 		}
-		else if (param == "--colord")
-		{
-			m_path = argv[++i];
-		}
 		else if (param == "--test")
 		{
 			try
@@ -55,18 +51,14 @@ Status Parallel::parseArguments(const int argc, char** argv)
 				return getStatus();
 			}
 		}
+		else if (param == "--colord")
+			m_path = argv[++i];
 		else if (param == "-m")
-		{
 			m_mode.append(" ").append(argv[++i]);
-		}
 		else if (setOfTwoParams.contains(param))
-		{
 			m_arguments.append(" " + param + " ").append(argv[++i]);
-		}
 		else if (setOfOneParam.contains(param))
-		{
 			m_arguments.append(" " + param);
-		}
 	}
 	m_arguments.append(" ");
 	if (m_path.empty() && m_mode.empty() && m_count == 0)
@@ -105,56 +97,15 @@ void Parallel::calculateCount()
 		std::getline(getInputStream(), signAndIdentifier);
 		std::getline(getInputStream(), qualityScores);
 		++m_count;
-
 	}
 	getInputStream().clear();
 	getInputStream().seekg(std::ios_base::beg);
 	m_repEvery = m_count / m_maxNumberOfFilesToOutput;
 }
 
-//bool Parallel::createFiles()
-//{
-//	std::string identifier{};
-//	std::string sequence{};
-//	std::string signAndIdentifier{};
-//	std::string qualityScores{};
-//
-//	std::size_t current{ 0 };
-//	std::size_t index{};
-//	std::filesystem::create_directory(m_output);
-//
-//	while(std::getline(getInputStream(),identifier))
-//	{
-//		std::getline(getInputStream(), sequence);
-//		std::getline(getInputStream(), signAndIdentifier);
-//		std::getline(getInputStream(), qualityScores);
-//
-//		if(current++ % m_repEvery == 0 && index < m_maxNumberOfFilesToOutput)
-//		{
-//			getOutputStream().close();
-//			std::filesystem::path tempPath{ m_output };
-//			getOutputStream().open(tempPath.append(std::to_string(++index) + m_extension.string()));
-//
-//			if (!getOutputStream())
-//				return false;
-//			m_directories.emplace_back(tempPath);
-//		}
-//
-//		getOutputStream() << identifier << '\n' << sequence<< '\n' << signAndIdentifier<< '\n' << qualityScores <<'\n';
-//	}
-//
-//	getOutputStream().flush();
-//	return true;
-//}
-
 bool Parallel::createFiles()
 {
 	std::vector<std::ofstream> openOutputStreams{};
-
-	//m_maxNumberOfFilesToOutput = max liczba plikow
-	//m_count = liczba sekwencji w pliku wejsciowym
-	//m_test = liczba sekwencji co ile ma sie zmieniac plik
-
 	std::filesystem::create_directory(m_output);
 	for (int index{ 0 }; index == 0 || (index < m_maxNumberOfFilesToOutput && m_count - index * m_test > m_test * 0.5) ; ++index)
 	{
