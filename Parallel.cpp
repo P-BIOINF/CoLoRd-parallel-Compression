@@ -22,7 +22,7 @@ Status Parallel::parseArguments(const int argc, char** argv)
 		}
 		else if (param == "--output")
 		{
-			m_output = argv[++i];
+			m_output = std::string(argv[++i]) + "\\";
 			m_output.remove_filename();
 		}
 		else if (param == "--count")
@@ -181,7 +181,7 @@ void Parallel::printFileSizes()
 	for (const auto element : m_sizesWithCompression)
 		totalSize += element;
 	sStream << std::setprecision(3) << std::fixed << "\nSize of the input file:\nw/o Compression:\t\t\t\t\t" << m_originalSizeWithoutCompression;
-	std::cout << sStream.view();
+	std::cout << sStream.view() << '\n';
 	getLogsStream() << sStream.view() << '\n';
 }
 
