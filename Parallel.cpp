@@ -107,14 +107,14 @@ bool Parallel::createFiles()
 {
 	std::vector<std::ofstream> openOutputStreams{};
 	std::filesystem::create_directory(m_output);
-	for (int index{ 0 }; index == 0 || (index < m_maxNumberOfFilesToOutput && m_count - index * m_test > m_test * 0.5) ; ++index)
+	for (int index{ 0 }; index == 0 || (index < m_maxNumberOfFilesToOutput) ; ++index)
 	{
 		std::filesystem::path tempPath{ m_output };
 		tempPath.append(std::to_string(index + 1) + m_extension.string());
 		openOutputStreams.emplace_back(std::ofstream{ tempPath });
 		m_directories.emplace_back(tempPath);
 	}
-	std::string identifier{};
+	std::string identifier{}; 
 	std::string sequence{};
 	std::string signAndIdentifier{};
 	std::string qualityScores{};
@@ -126,7 +126,7 @@ bool Parallel::createFiles()
 		std::getline(getInputStream(), signAndIdentifier);
 		std::getline(getInputStream(), qualityScores);
 		openOutputStreams[currentFile] << identifier << '\n' << sequence << '\n' << signAndIdentifier << '\n' << qualityScores << '\n';
-		if (++currentSequence; currentSequence % m_test == 0 && m_count - currentSequence > m_test * 0.5)
+		if (++currentSequence; currentSequence % m_test == 0)
 		{
 			openOutputStreams[currentFile].flush();
 			++currentFile;
