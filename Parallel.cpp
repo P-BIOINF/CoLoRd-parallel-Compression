@@ -1,10 +1,9 @@
 ﻿#include "Parallel.h"
-
 #include <execution>
-
 #include "Timer.h"
 #include <iostream>
 #include <string>
+#include <thread>
 #include <fstream>
 #include <filesystem>
 #include <unordered_set>
@@ -31,11 +30,22 @@ Status Parallel::parseArguments(const int argc, char** argv)
 			{
 				m_maxNumberOfFilesToOutput = std::stoul(argv[++i]);
 			}
-			catch (...)
+			catch (const std::invalid_argument& ex)
 			{
-				m_status = Status::failed;
-
-				return getStatus();
+				std::cerr << ex.what() << '\n';
+				m_maxNumberOfFilesToOutput = 0;
+			}
+		}
+		else if (param == "--lpthread")
+		{
+			try
+			{
+				m_threads = std::stoi(argv[++i]);
+			}
+			catch (const std::invalid_argument& ex)
+			{
+				std::cerr << ex.what() << '\n';
+				m_threads = -1;
 			}
 		}
 		else if (param == "--test")
@@ -61,7 +71,7 @@ Status Parallel::parseArguments(const int argc, char** argv)
 			m_arguments.append(" " + param);
 	}
 	m_arguments.append(" ");
-	if (m_path.empty() && m_mode.empty() && m_count == 0)
+	if (m_path.empty() || m_mode.empty() || m_maxNumberOfFilesToOutput == 0 || m_threads == -1)
 	{
 		m_status = Status::not_ready;
 		return getStatus();
@@ -107,14 +117,14 @@ bool Parallel::createFiles()
 {
 	std::vector<std::ofstream> openOutputStreams{};
 	std::filesystem::create_directory(m_output);
-	for (int index{ 0 }; index == 0 || (index < m_maxNumberOfFilesToOutput && m_count - index * m_test > m_test * 0.5) ; ++index)
+	for (int index{ 0 }; index == 0 || (index < m_maxNumberOfFilesToOutput) ; ++index)
 	{
 		std::filesystem::path tempPath{ m_output };
 		tempPath.append(std::to_string(index + 1) + m_extension.string());
 		openOutputStreams.emplace_back(std::ofstream{ tempPath });
 		m_directories.emplace_back(tempPath);
 	}
-	std::string identifier{};
+	std::string identifier{}; 
 	std::string sequence{};
 	std::string signAndIdentifier{};
 	std::string qualityScores{};
@@ -126,7 +136,7 @@ bool Parallel::createFiles()
 		std::getline(getInputStream(), signAndIdentifier);
 		std::getline(getInputStream(), qualityScores);
 		openOutputStreams[currentFile] << identifier << '\n' << sequence << '\n' << signAndIdentifier << '\n' << qualityScores << '\n';
-		if (++currentSequence; currentSequence % m_test == 0 && m_count - currentSequence > m_test * 0.5)
+		if (++currentSequence; currentSequence % m_test == 0)
 		{
 			openOutputStreams[currentFile].flush();
 			++currentFile;
@@ -139,18 +149,15 @@ bool Parallel::createFiles()
 
 void Parallel::compress()
 {
-	for (const auto& path : m_directories)
-	{
-		m_sizesWithoutCompression.emplace_back(std::filesystem::file_size(path));
-		std::filesystem::path tempPath{path};
-		tempPath.replace_extension(m_extension.string() + "colord");
-		std::string temp{" " + m_path.string() + m_mode + m_arguments + path.string() + " " + tempPath.string()};
-		Timer timer{};
-		std::system(temp.c_str());
-		m_times.emplace_back(timer.elapsed());
-		m_sizesWithCompression.emplace_back(std::filesystem::file_size(tempPath));
-		std::cout << '\n';
-	}
+	m_sizesWithoutCompression.resize(m_directories.size());
+	m_times.resize(m_directories.size());
+	m_sizesWithCompression.resize(m_directories.size());
+	std::vector<std::thread> threads{};
+	threads.reserve(m_threads);
+	for (int i = 0; i < m_threads; i++)
+		threads.emplace_back([this]() { this->handleCompression(); });
+	for (auto& thread : threads)
+		thread.join();
 	m_originalSizeWithoutCompression = std::filesystem::file_size(m_input);
 	std::cout<< '\n';
 	for (std::size_t i{ 0 }; i < m_directories.size(); ++i)
@@ -164,6 +171,27 @@ void Parallel::compress()
 		std::cout << tempStream.view();
 	}
 	m_avgRatio /= m_directories.size();
+}
+
+void Parallel::handleCompression()
+{
+	static std::atomic<int> pathIndex{ 0 };
+	int index{};
+	while ((index = pathIndex++) < m_directories.size())
+		systemCompression(index);
+}
+
+void Parallel::systemCompression(const int index)
+{
+	m_sizesWithoutCompression[index] = std::filesystem::file_size(m_directories[index]);
+	std::filesystem::path tempPath{ m_directories[index] };
+	tempPath.replace_extension(m_extension.string() + "colord");
+	std::string temp{ ' ' + m_path.string() + m_mode + m_arguments + m_directories[index].string() + ' ' + tempPath.string() };
+	Timer timer{};
+	std::system(temp.c_str());
+	m_times[index] = timer.elapsed();
+	m_sizesWithCompression[index] = std::filesystem::file_size(tempPath);
+	std::cout << '\n';
 }
 
 void Parallel::printAvgRatio()

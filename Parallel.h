@@ -26,6 +26,7 @@ class Parallel
 	Status m_status{ Status::not_ready };
 	Streams m_streams{};
 	std::int64_t m_count{ 0 };
+	std::int64_t m_threads{ -1 };
 	std::int64_t m_repEvery{ 0 };
 	std::vector<std::filesystem::path> m_directories{};
 	long double m_avgRatio{};
@@ -67,6 +68,16 @@ public:
 	 * requires parseArguments(const int argc, char** argv), calculateCount(), createFiles() to be run before
 	 */
 	void compress();
+
+	/**
+	 * \brief controls using colord's compression with threads
+	 */
+	void handleCompression();
+
+	/**
+	 * \brief runs colord's compression
+	 */
+	void systemCompression(const int index);
 
 	/**
 	 * \brief prints avg compression ratio
