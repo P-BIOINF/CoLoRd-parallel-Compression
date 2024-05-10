@@ -8,13 +8,12 @@ class Streams
 private:
     std::ifstream m_input{};
     std::ofstream m_output{};
-    std::ofstream m_logs{};
 
 public:
     Streams() = default;
 
-    Streams(const std::string& input, const std::string& logs)
-        : m_input{ input }, m_logs{ logs } {}
+    Streams(const std::string& input)
+        : m_input{ input } {}
 
     /**
      * \brief set the inputStream to the input string
@@ -27,19 +26,6 @@ public:
             m_input.close();
         m_input.open(input);
         return m_input.good();
-    }
-
-    /**
-     * \brief set the logStream to the logs string
-     * \param logs string path 
-     * \return m_logs.good()
-     */
-    bool setLogs(const std::string& logs)
-    {
-        if (m_logs.is_open())
-            m_logs.close();
-        m_logs.open(logs);
-        return m_logs.good();
     }
 
     /**
@@ -73,22 +59,14 @@ public:
         return m_output;
     }
 
-    /**
-     * \brief returns the logsStream object
-     * \return m_logs
-     */
-    std::ofstream& getLogsStream()
-    {
-        return m_logs;
-    }
 
     /**
      * \brief checks if all streams are set properly
-     * \return m_input.good() && m_output.good() && m_logs.good();
+     * \return m_input.good() && m_output.good();
      */
     [[nodiscard]] bool good() const
     {
-        return m_input.good() && m_output.good() && m_logs.good();
+        return m_input.good() && m_output.good() ;
     }
 
 };

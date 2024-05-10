@@ -82,14 +82,7 @@ Status Parallel::parseArguments(const int argc, char** argv)
 		m_status = Status::failed;
 		return getStatus();
 	}
-	std::filesystem::path tempPath{ getOutput() };
-	tempPath /= "logs.txt";
-	getLogsStream().open(tempPath);
-	if(!getLogsStream().good())
-	{
-		m_status = Status::failed;
-		return getStatus();
-	}
+
 	m_status = Status::ready;
 	return getStatus();
 }
@@ -157,7 +150,7 @@ void Parallel::compress()
 	std::cout<< '\n';
 }
 
-void Parallel::handleCompression()
+void Parallel::handleCompression() const
 {
 	static std::atomic<int> pathIndex{ 0 };
 	int index{};
@@ -165,11 +158,11 @@ void Parallel::handleCompression()
 		systemCompression(index);
 }
 
-void Parallel::systemCompression(const int index)
+void Parallel::systemCompression(const int index) const
 {
 	std::filesystem::path tempPath{ m_directories[index] };
 	tempPath.replace_extension(m_extension.string() + "colord");
-	std::string temp{ ' ' + m_path.string() + m_mode + m_arguments + m_directories[index].string() + ' ' + tempPath.string() };
+	const std::string temp{ ' ' + m_path.string() + m_mode + m_arguments + m_directories[index].string() + ' ' + tempPath.string() };
 	std::system(temp.c_str());
 	std::cout << '\n';
 }

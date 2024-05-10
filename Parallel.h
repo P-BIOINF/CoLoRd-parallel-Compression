@@ -67,12 +67,12 @@ public:
 	/**
 	 * \brief controls using colord's compression with threads
 	 */
-	void handleCompression();
+	void handleCompression() const;
 
 	/**
 	 * \brief runs colord's compression
 	 */
-	void systemCompression(const int index);
+	void systemCompression(const int index)const;
 
 	[[nodiscard]] Status getStatus() const
 	{
@@ -126,15 +126,6 @@ public:
 		return m_streams.getOutputStream();
 	}
 
-	/**
-	 * \brief returns the logStream object
-	 * the stream for outputting logs
-	 * \return m_stream.getLogsStream()
-	 */
-	[[nodiscard]] std::ofstream& getLogsStream()
-	{
-		return m_streams.getLogsStream();
-	}
 
 	/**
 	 * \brief returns the number of sequences per divided file
