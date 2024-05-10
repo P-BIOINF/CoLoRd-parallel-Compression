@@ -1,13 +1,12 @@
+#include "Parallel.h"
 #include <iostream>
 #include <filesystem>
-#include "Parallel.h"
-#include "Timer.h"
+
 
 int main(const int argc, char** argv)
 {
 	std::ios_base::sync_with_stdio(false);
 
-	Timer timer{};
 	Parallel parallel{};
 
 	if (parallel.parseArguments(argc, argv) != Status::ready)
@@ -37,9 +36,5 @@ int main(const int argc, char** argv)
 	}
 
 	parallel.compress();
-	parallel.printAvgRatio();
-	parallel.printFileSizes();
-	parallel.totalSequences();
-
 	return 0;
 }

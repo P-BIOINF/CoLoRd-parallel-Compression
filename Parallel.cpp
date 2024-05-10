@@ -1,6 +1,5 @@
 ﻿#include "Parallel.h"
 #include <execution>
-#include "Timer.h"
 #include <iostream>
 #include <string>
 #include <thread>
@@ -149,28 +148,13 @@ bool Parallel::createFiles()
 
 void Parallel::compress()
 {
-	m_sizesWithoutCompression.resize(m_directories.size());
-	m_times.resize(m_directories.size());
-	m_sizesWithCompression.resize(m_directories.size());
 	std::vector<std::thread> threads{};
 	threads.reserve(m_threads);
 	for (int i = 0; i < m_threads; i++)
 		threads.emplace_back([this]() { this->handleCompression(); });
 	for (auto& thread : threads)
 		thread.join();
-	m_originalSizeWithoutCompression = std::filesystem::file_size(m_input);
 	std::cout<< '\n';
-	for (std::size_t i{ 0 }; i < m_directories.size(); ++i)
-	{
-		const auto ratio{ m_sizesWithoutCompression[i] / static_cast<long double> (m_sizesWithCompression[i]) };
-		m_avgRatio += ratio;
-		std::stringstream tempStream{};
-		tempStream << std::setprecision(3) << std::fixed << "Size of file #" << i + 1 << ":\nw/o compression: " << m_sizesWithoutCompression[i] 
-			<< "\tw/ compression: " << m_sizesWithCompression[i]  << "\tcompression ratio: " << ratio << "\trun time: " << m_times[i]<< '\n';
-		getLogsStream() << tempStream.view();
-		std::cout << tempStream.view();
-	}
-	m_avgRatio /= m_directories.size();
 }
 
 void Parallel::handleCompression()
@@ -183,43 +167,10 @@ void Parallel::handleCompression()
 
 void Parallel::systemCompression(const int index)
 {
-	m_sizesWithoutCompression[index] = std::filesystem::file_size(m_directories[index]);
 	std::filesystem::path tempPath{ m_directories[index] };
 	tempPath.replace_extension(m_extension.string() + "colord");
 	std::string temp{ ' ' + m_path.string() + m_mode + m_arguments + m_directories[index].string() + ' ' + tempPath.string() };
-	Timer timer{};
 	std::system(temp.c_str());
-	m_times[index] = timer.elapsed();
-	m_sizesWithCompression[index] = std::filesystem::file_size(tempPath);
 	std::cout << '\n';
 }
 
-void Parallel::printAvgRatio()
-{
-	std::stringstream sStream{};
-	sStream << std::setprecision(3) << std::fixed << "\nAverage compression ratio:\t\t\t\t" << m_avgRatio << '\n';
-	getLogsStream() << sStream.view();
-	std::cout << sStream.view();
-}
-
-void Parallel::printFileSizes()
-{
-	std::stringstream sStream{};
-	std::size_t totalSize{0};
-	for (const auto element : m_sizesWithCompression)
-		totalSize += element;
-	sStream << std::setprecision(3) << std::fixed << "\nSize of the input file:\nw/o Compression:\t\t\t\t\t" << m_originalSizeWithoutCompression;
-	std::cout << sStream.view() << '\n';
-	getLogsStream() << sStream.view() << '\n';
-}
-
-void Parallel::totalSequences()
-{	
-	std::stringstream sStream{};
-	double tempTime{};
-	for (const auto element : m_times)
-		tempTime += element;
-	sStream << std::setprecision(3) << std::fixed << "Total sequences:\t\t\t\t\t" << m_count << "\nCompression ratio delta:\t\t\t\t" << m_avgRatio - m_ratio << "\nCompression time:\t\t\t\t\t"<< tempTime <<"\n";
-	std::cout << sStream.view();
-	getLogsStream() << sStream.view();
-}

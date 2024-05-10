@@ -29,12 +29,7 @@ class Parallel
 	std::int64_t m_threads{ -1 };
 	std::int64_t m_repEvery{ 0 };
 	std::vector<std::filesystem::path> m_directories{};
-	long double m_avgRatio{};
 	std::int64_t m_index{ 0 };
-	std::vector<std::int64_t> m_sizesWithoutCompression{};
-	std::vector<std::int64_t> m_sizesWithCompression{};
-	std::int64_t m_originalSizeWithoutCompression{};
-	long double m_ratio{1};
 	std::vector<double> m_times{};
 	std::filesystem::path m_extension{};
 	std::int64_t m_test{10};
@@ -79,28 +74,6 @@ public:
 	 */
 	void systemCompression(const int index);
 
-	/**
-	 * \brief prints avg compression ratio
-	 * requires compress() to be run before
-	 */
-	void printAvgRatio();
-
-	/**
-	 * \brief prints the size etc. of the original file (not divided)
-	 * requires compress() to be run before
-	 */
-	void printFileSizes();
-
-	/**
-	 * \brief prints the amount of sequences and the delta of the compression ratio (compressionRatioOfTheOriginalFile - averageCompressionRatioOfDividedFiles)
-	 * requires compress() to be run before
-	 */
-	void totalSequences();
-
-	/**
-	 * \brief returns current status
-	 * \return m_status
-	 */
 	[[nodiscard]] Status getStatus() const
 	{
 		return m_status;
