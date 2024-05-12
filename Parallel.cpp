@@ -23,7 +23,7 @@ Status Parallel::parseArguments(const int argc, char** argv)
 			m_output = std::string(argv[++i]) + "\\";
 			m_output.remove_filename();
 		}
-		else if (param == "--count")
+		else if (param == "--maxFiles")
 		{
 			try
 			{
@@ -38,8 +38,10 @@ Status Parallel::parseArguments(const int argc, char** argv)
 		else if (param == "--lpthread")
 		{
 			try
-			{
+			{ 
 				m_threads = std::stoi(argv[++i]);
+				if (std::thread::hardware_concurrency() < m_threads)
+					m_threads = std::thread::hardware_concurrency();
 			}
 			catch (const std::invalid_argument& ex)
 			{
@@ -47,11 +49,11 @@ Status Parallel::parseArguments(const int argc, char** argv)
 				m_threads = -1;
 			}
 		}
-		else if (param == "--test")
+		else if (param == "--count")
 		{
 			try
 			{
-				m_test = std::stoul(argv[++i]);
+				m_count = std::stoul(argv[++i]);
 			}
 			catch (...)
 			{
@@ -98,11 +100,11 @@ void Parallel::calculateCount()
 		std::getline(getInputStream(), sequence);
 		std::getline(getInputStream(), signAndIdentifier);
 		std::getline(getInputStream(), qualityScores);
-		++m_count;
+		++m_countFiles;
 	}
 	getInputStream().clear();
 	getInputStream().seekg(std::ios_base::beg);
-	m_repEvery = m_count / m_maxNumberOfFilesToOutput;
+	m_repEvery = m_countFiles / m_maxNumberOfFilesToOutput;
 }
 
 bool Parallel::createFiles()
@@ -128,7 +130,7 @@ bool Parallel::createFiles()
 		std::getline(getInputStream(), signAndIdentifier);
 		std::getline(getInputStream(), qualityScores);
 		openOutputStreams[currentFile] << identifier << '\n' << sequence << '\n' << signAndIdentifier << '\n' << qualityScores << '\n';
-		if (++currentSequence; currentSequence % m_test == 0)
+		if (++currentSequence; currentSequence % m_count == 0)
 		{
 			openOutputStreams[currentFile].flush();
 			++currentFile;

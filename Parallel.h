@@ -25,14 +25,14 @@ class Parallel
 	std::int64_t m_maxNumberOfFilesToOutput{};
 	Status m_status{ Status::not_ready };
 	Streams m_streams{};
-	std::int64_t m_count{ 0 };
+	std::int64_t m_countFiles{ 0 };
 	std::int64_t m_threads{ -1 };
 	std::int64_t m_repEvery{ 0 };
 	std::vector<std::filesystem::path> m_directories{};
 	std::int64_t m_index{ 0 };
 	std::vector<double> m_times{};
 	std::filesystem::path m_extension{};
-	std::int64_t m_test{10};
+	std::int64_t m_count{10};
 
 public:
 	Parallel() = default;
