@@ -17,22 +17,23 @@ enum class Status
 
 class Parallel
 {
-	std::filesystem::path m_path{};
-	std::string m_mode{};
-	std::string m_arguments{};
-	std::filesystem::path m_input{};
-	std::filesystem::path m_output{};
-	std::int64_t m_maxNumberOfFilesToOutput{};
-	Status m_status{ Status::not_ready };
 	Streams m_streams{};
-	std::int64_t m_countFiles{ 0 };
+	std::string m_mode{};
+	std::int64_t m_count{10};
+	std::string m_arguments{};
+	std::int64_t m_index{ 0 };
 	std::int64_t m_threads{ -1 };
 	std::int64_t m_repEvery{ 0 };
-	std::vector<std::filesystem::path> m_directories{};
-	std::int64_t m_index{ 0 };
 	std::vector<double> m_times{};
+	std::filesystem::path m_path{};
+	std::int64_t m_countFiles{ 0 };
+	std::filesystem::path m_input{};
+	std::filesystem::path m_output{};
+	std::atomic<int> m_pathIndex{ 0 };
 	std::filesystem::path m_extension{};
-	std::int64_t m_count{10};
+	Status m_status{ Status::not_ready };
+	std::int64_t m_maxNumberOfFilesToOutput{};
+	std::vector<std::filesystem::path> m_directories{};
 
 public:
 	Parallel() = default;
@@ -67,7 +68,7 @@ public:
 	/**
 	 * \brief controls using colord's compression with threads
 	 */
-	void handleCompression() const;
+	void handleCompression();
 
 	/**
 	 * \brief runs colord's compression

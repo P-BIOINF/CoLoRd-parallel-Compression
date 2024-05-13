@@ -152,12 +152,16 @@ void Parallel::compress()
 	std::cout<< '\n';
 }
 
-void Parallel::handleCompression() const
+void Parallel::handleCompression()
 {
-	static std::atomic<int> pathIndex{ 0 };
 	int index{};
-	while ((index = pathIndex++) < m_directories.size())
+	while (true) 
+	{
+		index = m_pathIndex.fetch_add(1, std::memory_order_relaxed);
+		if (index >= m_directories.size())
+			break;
 		systemCompression(index);
+	}
 }
 
 void Parallel::systemCompression(const int index) const
@@ -168,4 +172,3 @@ void Parallel::systemCompression(const int index) const
 	std::system(temp.c_str());
 	std::cout << '\n';
 }
-
