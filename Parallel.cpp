@@ -168,7 +168,12 @@ void Parallel::systemCompression(const int index) const
 {
 	std::filesystem::path tempPath{ m_directories[index] };
 	tempPath.replace_extension(m_extension.string() + "colord");
-	const std::string temp{ ' ' + m_path.string() + m_mode + m_arguments + m_directories[index].string() + ' ' + tempPath.string() };
+	auto out = tempPath;
+	out.replace_extension(".out");
+	auto err = tempPath;
+	err.replace_extension(".err");
+	const std::string temp{ ' ' + m_path.string() + m_mode + m_arguments + m_directories[index].string() + ' ' + tempPath.string() + 
+		" > " + out.string() + " 2> " + err.string() };
 	std::system(temp.c_str());
 	std::cout << '\n';
 }
