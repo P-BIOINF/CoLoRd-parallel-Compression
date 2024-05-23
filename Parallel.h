@@ -19,14 +19,11 @@ class Parallel
 {
 	Streams m_streams{};
 	std::string m_mode{};
-	std::int64_t m_count{10};
+	std::int64_t m_count{10000};
 	std::string m_arguments{};
 	std::int64_t m_index{ 0 };
 	std::int64_t m_threads{ -1 };
-	std::int64_t m_repEvery{ 0 };
-	std::vector<double> m_times{};
 	std::filesystem::path m_path{};
-	std::int64_t m_countFiles{ 0 };
 	std::filesystem::path m_input{};
 	std::filesystem::path m_output{};
 	std::atomic<int> m_pathIndex{ 0 };
@@ -45,12 +42,6 @@ public:
 	 * \return returns status. Status::ready if the program is ready to use
 	 */
 	Status parseArguments(const int argc, char** argv);
-
-	/**
-	 * \brief calculates the amount of sequences
-	 * requires parseArguments(const int argc, char** argv)
-	 */
-	void calculateCount();
 
 	/**
 	 * \brief divides the sequences into max {count} files 
@@ -125,16 +116,6 @@ public:
 	[[nodiscard]] std::ofstream& getOutputStream()
 	{
 		return m_streams.getOutputStream();
-	}
-
-
-	/**
-	 * \brief returns the number of sequences per divided file
-	 * \return m_repEvery
-	 */
-	[[nodiscard]] std::size_t getRepEvery() const
-	{
-		return m_repEvery;
 	}
 
 	/**

@@ -38,7 +38,7 @@ Status Parallel::parseArguments(const int argc, char** argv)
 		else if (param == "--lpthread")
 		{
 			try
-			{ 
+			{
 				m_threads = std::stoi(argv[++i]);
 				if (std::thread::hardware_concurrency() < m_threads)
 					m_threads = std::thread::hardware_concurrency();
@@ -79,7 +79,7 @@ Status Parallel::parseArguments(const int argc, char** argv)
 	}
 	getInputStream().open(getInput());
 	std::filesystem::create_directory(getOutput());
-	if(!getInputStream())
+	if (!getInputStream())
 	{
 		m_status = Status::failed;
 		return getStatus();
@@ -89,41 +89,24 @@ Status Parallel::parseArguments(const int argc, char** argv)
 	return getStatus();
 }
 
-void Parallel::calculateCount()
-{
-	std::string identifier{};
-	std::string sequence{};
-	std::string signAndIdentifier{};
-	std::string qualityScores{};
-	while(std::getline(getInputStream(), identifier))
-	{
-		std::getline(getInputStream(), sequence);
-		std::getline(getInputStream(), signAndIdentifier);
-		std::getline(getInputStream(), qualityScores);
-		++m_countFiles;
-	}
-	getInputStream().clear();
-	getInputStream().seekg(std::ios_base::beg);
-	m_repEvery = m_countFiles / m_maxNumberOfFilesToOutput;
-}
 
 bool Parallel::createFiles()
 {
 	std::vector<std::ofstream> openOutputStreams{};
 	std::filesystem::create_directory(m_output);
-	for (int index{ 0 }; index == 0 || (index < m_maxNumberOfFilesToOutput) ; ++index)
+	for (int index{ 0 }; index == 0 || (index < m_maxNumberOfFilesToOutput); ++index)
 	{
 		std::filesystem::path tempPath{ m_output };
 		tempPath.append(std::to_string(index + 1) + m_extension.string());
 		openOutputStreams.emplace_back(std::ofstream{ tempPath });
 		m_directories.emplace_back(tempPath);
 	}
-	std::string identifier{}; 
+	std::string identifier{};
 	std::string sequence{};
 	std::string signAndIdentifier{};
 	std::string qualityScores{};
-	std::uint64_t currentSequence{0};
-	int currentFile{0};
+	std::uint64_t currentSequence{ 0 };
+	int currentFile{ 0 };
 	while (std::getline(getInputStream(), identifier))
 	{
 		std::getline(getInputStream(), sequence);
@@ -149,16 +132,16 @@ void Parallel::compress()
 		threads.emplace_back([this]() { this->handleCompression(); });
 	for (auto& thread : threads)
 		thread.join();
-	std::cout<< '\n';
+	std::cout << '\n';
 }
 
 void Parallel::handleCompression()
 {
 	int index{};
-	while (true) 
+	while (true)
 	{
 		index = m_pathIndex.fetch_add(1, std::memory_order_relaxed);
-		if (index >= m_directories.size())
+		if (index >= std::ssize(m_directories))
 			break;
 		systemCompression(index);
 	}
