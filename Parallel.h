@@ -2,6 +2,7 @@
 #define PARALLEL_H
 
 #include <utility>
+#include <atomic>
 #include <string>
 #include <vector>
 #include "Streams.h"

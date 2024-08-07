@@ -20,7 +20,7 @@ Status Parallel::parseArguments(const int argc, char** argv)
 		}
 		else if (param == "--output")
 		{
-			m_output = std::string(argv[++i]) + "\\";
+			m_output = std::string(argv[++i]);
 			m_output.remove_filename();
 		}
 		else if (param == "--maxFiles")
@@ -98,7 +98,7 @@ bool Parallel::createFiles()
 	{
 		std::filesystem::path tempPath{ m_output };
 		tempPath.append(std::to_string(index + 1) + m_extension.string());
-		openOutputStreams.emplace_back(std::ofstream{ tempPath });
+		openOutputStreams.emplace_back(std::ofstream{ tempPath, std::ios::binary});
 		m_directories.emplace_back(tempPath);
 	}
 	std::string identifier{};
