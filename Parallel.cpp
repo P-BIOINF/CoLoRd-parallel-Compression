@@ -77,7 +77,7 @@ Status Parallel::parseArguments(const int argc, char** argv)
 		m_status = Status::not_ready;
 		return getStatus();
 	}
-	getInputStream().open(getInput());
+	getInputStream().open(getInput(), std::ios::binary);
 	std::filesystem::create_directory(getOutput());
 	if (!getInputStream())
 	{
@@ -132,7 +132,6 @@ void Parallel::compress()
 		threads.emplace_back([this]() { this->handleCompression(); });
 	for (auto& thread : threads)
 		thread.join();
-	std::cout << '\n';
 }
 
 void Parallel::handleCompression()
@@ -155,5 +154,4 @@ void Parallel::systemCompression(const int index) const
 	err.replace_extension(".err");
 	const std::string temp{ ' ' + m_path.string() + m_mode + m_arguments + m_directories[index].string() + ' ' + tempPath.string() + " 2> " + err.string() };
 	std::system(temp.c_str());
-	std::cout << '\n';
 }
