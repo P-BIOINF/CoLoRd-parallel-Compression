@@ -1,5 +1,5 @@
 # Compiler
-CXX := clang++
+CXX := g++
 
 # Compiler flags
 CXXFLAGS := -Wall -Wextra -std=c++20 -Iinclude
