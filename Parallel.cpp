@@ -153,6 +153,6 @@ void Parallel::systemCompression(const int index) const
 	auto err = tempPath;
 	err.replace_extension(".err");
 	const std::string temp{ ' ' + m_path.string() + m_mode + m_arguments + m_directories[index].string() + ' ' + tempPath.string() + " 2> " + err.string() };
-	std::cerr << temp.c_str(); // sprawdzenie co dokladnie wywoluje system
+	std::cerr << temp.c_str() << '\n'; // sprawdzenie co dokladnie wywoluje system
 	std::system(temp.c_str());
 }
