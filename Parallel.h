@@ -1,11 +1,12 @@
 ﻿#ifndef PARALLEL_H
 #define PARALLEL_H
 
+#include "Streams.h"
 #include <utility>
 #include <atomic>
+#include <chrono>
 #include <string>
 #include <vector>
-#include "Streams.h"
 #include <filesystem>
 
 enum class Status
@@ -32,6 +33,9 @@ class Parallel
 	Status m_status{ Status::not_ready };
 	std::int64_t m_maxNumberOfFilesToOutput{};
 	std::vector<std::filesystem::path> m_directories{};
+	std::chrono::high_resolution_clock::time_point m_end{};
+	std::chrono::high_resolution_clock::time_point m_start{};
+	std::chrono::high_resolution_clock::time_point m_compression_start{};
 
 public:
 	Parallel() = default;
@@ -67,27 +71,14 @@ public:
 	 */
 	void systemCompression(const int index)const;
 
+	/**
+	 * \brief calculates and prints the time difference
+	 */
+	void displayTime(const std::string& message, const std::chrono::high_resolution_clock::time_point& start, const std::chrono::high_resolution_clock::time_point& end) const;
+
 	[[nodiscard]] Status getStatus() const
 	{
 		return m_status;
-	}
-
-	/**
-	 * \brief returns path to the colord.exe
-	 * \return m_path
-	 */
-	[[nodiscard]] const std::filesystem::path& getPath() const
-	{
-		return m_path;
-	}
-
-	/**
-	 * \brief returns mode in which colord should be run
-	 * \return m_mode
-	 */
-	[[nodiscard]] std::string_view getMode() const
-	{
-		return m_mode;
 	}
 
 	/**
