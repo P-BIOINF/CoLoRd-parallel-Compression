@@ -1,23 +1,22 @@
 ﻿#include "Parallel.h"
 #include <execution>
-#include <iostream>
-#include <string>
 #include <thread>
 #include <fstream>
-#include <filesystem>
 #include <unordered_set>
-#ifdef __linux__
-#include <unistd.h>
-#include <sys/resource.h>
-#include <sys/time.h>
-#endif
+
+void displayTime(std::string message, const std::chrono::high_resolution_clock::time_point& start, const std::chrono::high_resolution_clock::time_point& end)
+{
+	auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(end - start).count();
+	std::int64_t minutes = elapsed / 60;
+	std::int64_t seconds = elapsed % 60;
+	std::cerr << message << minutes << " minutes " << seconds << " seconds" << '\n';
+}
 
 Status Parallel::parseArguments(const int argc, char** argv)
 {
-	m_start = std::chrono::high_resolution_clock::now();
 	const std::unordered_set<std::string> setOfTwoParams{ "-k", "--kmer - len", "-t", "--threads", "-p", "--priority", "-q", "--qual", "-T","--qual-thresholds", "-D", "--qual-values", "-i", "--identifier", "-R", "--Ref-reads-mod" };
 	const std::unordered_set<std::string> setOfOneParam{ "-G", "--reference-genome", "-s", "--store-reference","-v","--verbose", "-a", "--anchor-len", "-L", "--Lowest-count", "-H", "--Highest-count", "-f", "--filter-modulo", "---max-candidates", "-c", "-e", "--edit-script-mult", "-r", "--max-recurence-level", "--min-to-alt", "--min-mmer-frac", "--min-mmer-force-enc", "--max-matches-mult", "--fill-factor-filtered-kmers", "--fill-factor-kmers-to-reads", "--min-anchors", "-x", "--sparse-exponent", "-g", "--sparse-range", "-h", "--help" };
-	for (int i{ 0 }; i < argc; ++i)
+	for (std::int64_t i{ 0 }; i < argc; ++i)
 	{
 		if (std::string param{ argv[i] }; param == "--input")
 		{
@@ -135,13 +134,12 @@ void Parallel::compress()
 	std::vector<std::thread> threads{};
 	threads.reserve(m_threads);
 	m_compression_start = std::chrono::high_resolution_clock::now();
-	for (int i = 0; i < m_threads; i++)
+	for (std::int64_t i = 0; i < m_threads; i++)
 		threads.emplace_back([this]() { this->handleCompression(); });
 	for (auto& thread : threads)
 		thread.join();
-	m_end = std::chrono::high_resolution_clock::now();
-	displayTime("Time elapsed during compression: ", m_compression_start, m_end);
-	displayTime("Elapsed time during the entire program", m_start, m_end);
+	m_compression_end = std::chrono::high_resolution_clock::now();
+	displayTime("Time elapsed during compression: ", m_compression_start, m_compression_end);
 }
 
 void Parallel::handleCompression()
@@ -163,18 +161,5 @@ void Parallel::systemCompression(const int index) const
 	auto err = tempPath;
 	err.replace_extension(".err");
 	const std::string command{ ' ' + m_path.string() + m_mode + m_arguments + m_directories[index].string() + ' ' + tempPath.string() + " 2> " + err.string() };
-#ifdef __linux__
-	std::string fullCommand = "/usr/bin/time -v " + command;
-	std::system(fullCommand.c_str());
-#else
 	std::system(command.c_str());
-#endif
-}
-
-void Parallel::displayTime(const std::string& message, const std::chrono::high_resolution_clock::time_point& start, const std::chrono::high_resolution_clock::time_point& end) const
-{
-	auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(end - start).count();
-	int minutes = elapsed / 60;
-	int seconds = elapsed % 60;
-	std::cerr << message << minutes << " minutes " << seconds << " seconds" << '\n';
 }

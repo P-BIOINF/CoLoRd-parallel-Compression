@@ -2,11 +2,12 @@
 #define PARALLEL_H
 
 #include "Streams.h"
-#include <utility>
 #include <atomic>
 #include <chrono>
 #include <string>
 #include <vector>
+#include <utility>
+#include <iostream>
 #include <filesystem>
 
 enum class Status
@@ -16,6 +17,11 @@ enum class Status
 	failed,
 	max_status,
 };
+
+/**
+* \brief calculates and prints the time difference
+*/
+void displayTime(std::string message, const std::chrono::high_resolution_clock::time_point& start, const std::chrono::high_resolution_clock::time_point& end);
 
 class Parallel
 {
@@ -33,8 +39,7 @@ class Parallel
 	Status m_status{ Status::not_ready };
 	std::int64_t m_maxNumberOfFilesToOutput{};
 	std::vector<std::filesystem::path> m_directories{};
-	std::chrono::high_resolution_clock::time_point m_end{};
-	std::chrono::high_resolution_clock::time_point m_start{};
+	std::chrono::high_resolution_clock::time_point m_compression_end{};
 	std::chrono::high_resolution_clock::time_point m_compression_start{};
 
 public:
@@ -70,11 +75,6 @@ public:
 	 * \brief runs colord's compression
 	 */
 	void systemCompression(const int index)const;
-
-	/**
-	 * \brief calculates and prints the time difference
-	 */
-	void displayTime(const std::string& message, const std::chrono::high_resolution_clock::time_point& start, const std::chrono::high_resolution_clock::time_point& end) const;
 
 	[[nodiscard]] Status getStatus() const
 	{

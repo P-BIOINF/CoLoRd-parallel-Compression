@@ -1,9 +1,8 @@
 #include "Parallel.h"
-#include <iostream>
-#include <filesystem>
 
 int main(const int argc, char** argv)
 {
+	std::chrono::high_resolution_clock::time_point start{ std::chrono::high_resolution_clock::now() };
 	std::ios_base::sync_with_stdio(false);
 
 	const std::string announcement{ "Something went wrong! Please make sure that you have included:\n"
@@ -31,6 +30,9 @@ int main(const int argc, char** argv)
 	}
 
 	parallel.compress();
+
+	std::chrono::high_resolution_clock::time_point end{ std::chrono::high_resolution_clock::now() };
+	displayTime("Elapsed time during the entire program", start, end);
 
 	return 0;
 }
