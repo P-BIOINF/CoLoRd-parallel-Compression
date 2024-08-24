@@ -32,7 +32,7 @@ int main(const int argc, char** argv)
 	parallel.compress();
 
 	std::chrono::high_resolution_clock::time_point end{ std::chrono::high_resolution_clock::now() };
-	displayTime("Elapsed time during the entire program", start, end);
+	displayTime("Elapsed time during the entire program: ", start, end);
 
 	return 0;
 }

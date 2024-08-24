@@ -6,10 +6,7 @@
 
 void displayTime(std::string message, const std::chrono::high_resolution_clock::time_point& start, const std::chrono::high_resolution_clock::time_point& end)
 {
-	auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(end - start).count();
-	std::int64_t minutes = elapsed / 60;
-	std::int64_t seconds = elapsed % 60;
-	std::cerr << message << minutes << " minutes " << seconds << " seconds" << '\n';
+	std::cerr << message << std::chrono::duration_cast<std::chrono::seconds>(end - start).count() << " seconds" << '\n';
 }
 
 Status Parallel::parseArguments(const int argc, char** argv)
