@@ -2,11 +2,18 @@
 #include <execution>
 #include <thread>
 #include <fstream>
+#include <iomanip>
 #include <unordered_set>
 
-void displayTime(std::string message, const std::chrono::high_resolution_clock::time_point& start, const std::chrono::high_resolution_clock::time_point& end)
+void displayTime(std::string message, const std::chrono::high_resolution_clock::time_point& start, const std::chrono::high_resolution_clock::time_point& end) 
 {
-	std::cerr << message << std::chrono::duration_cast<std::chrono::seconds>(end - start).count() << " seconds" << '\n';
+	auto duration = std::chrono::duration_cast<std::chrono::seconds>(end - start).count();
+	int hours = duration / 3600;
+	int minutes = (duration % 3600) / 60;
+	int seconds = duration % 60;
+	std::cerr << "--------------------------------------------\n";
+	std::cerr << message << std::setw(2) << std::setfill('0') << hours << ":" << std::setw(2) << std::setfill('0') << minutes << ":" << std::setw(2) << std::setfill('0') << seconds << '\n';
+	std::cerr << "--------------------------------------------\n";
 }
 
 Status Parallel::parseArguments(const int argc, char** argv)
