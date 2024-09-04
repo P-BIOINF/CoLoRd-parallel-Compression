@@ -39,6 +39,8 @@ class Parallel
 	Status m_status{ Status::not_ready };
 	std::int64_t m_maxNumberOfFilesToOutput{};
 	std::vector<std::filesystem::path> m_directories{};
+	std::chrono::high_resolution_clock::time_point m_new_files_end{};
+	std::chrono::high_resolution_clock::time_point m_new_files_start{};
 	std::chrono::high_resolution_clock::time_point m_compression_end{};
 	std::chrono::high_resolution_clock::time_point m_compression_start{};
 

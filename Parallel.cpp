@@ -102,6 +102,7 @@ Status Parallel::parseArguments(const int argc, char** argv)
 bool Parallel::createFiles()
 {
 	std::vector<std::ofstream> openOutputStreams{};
+	m_new_files_start = std::chrono::high_resolution_clock::now();
 	std::filesystem::create_directory(m_output);
 	for (int index{ 0 }; index == 0 || (index < m_maxNumberOfFilesToOutput); ++index)
 	{
@@ -130,6 +131,8 @@ bool Parallel::createFiles()
 				currentFile = 0;
 		}
 	}
+	m_new_files_end = std::chrono::high_resolution_clock::now();
+	displayTime("The time elapsed while splitting the input file into smaller files: ", m_new_files_start, m_new_files_end);
 	return true;
 }
 
