@@ -1,5 +1,4 @@
 ﻿#include "Parallel.h"
-#include <execution>
 #include <thread>
 #include <fstream>
 #include <unordered_set>
@@ -103,7 +102,7 @@ bool Parallel::createFiles()
 	{
 		std::filesystem::path tempPath{ m_output };
 		tempPath.append(std::to_string(index + 1) + m_extension.string());
-		openOutputStreams.emplace_back(std::ofstream{ tempPath, std::ios::binary});
+		openOutputStreams.emplace_back(std::ofstream{ tempPath, std::ios::binary | std::ios::app});
 		m_directories.emplace_back(tempPath);
 	}
 	std::string identifier{};
